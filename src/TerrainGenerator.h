@@ -246,10 +246,10 @@ public:
 	//进行地图绘制
 	void TerrainDraw()
 	{
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glProvokingVertex(GL_FIRST_VERTEX_CONVENTION);
-		glDrawElements(GL_TRIANGLES, map.indicesIndex, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(this->VAO);
+		glDrawElements(GL_TRIANGLES, map.indicesIndex, GL_UNSIGNED_INT, 0);
 	}
 
 	//进行shader调用，传入shader、camera以及光照位置与颜色

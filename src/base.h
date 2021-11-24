@@ -12,11 +12,11 @@ struct MAP
 	//地图高度信息，分别保存每个顶点高度
 	float mapHeight[MAX_SIZE][MAX_SIZE];
 	//地图顶点坐标信息，分别保存每个顶点坐标，由于要拆点所以内存额外分配
-	glm::vec3 terrainData[MAX_SIZE * MAX_SIZE * 3];
+	glm::vec3 terrainData[MAX_SIZE * MAX_SIZE * 6];
 	//地图顶点数组下标
 	int dataIndex = 0;
 	//地图三角新信息，保存每个三角形三个顶点信息
-	int terrainIndices[MAX_SIZE * MAX_SIZE * 3];
+	int terrainIndices[MAX_SIZE * MAX_SIZE *6];
 	int indicesIndex = 0;
 	//地图边长
 	int mapSize;

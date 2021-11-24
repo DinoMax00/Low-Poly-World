@@ -40,13 +40,13 @@ void processInput(GLFWwindow* window)
 		glfwSetWindowShouldClose(window, true);
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera.ProcessKeyboard(FORWARD, deltaTime);
+		camera.ProcessKeyboard(FORWARD, 20*deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera.ProcessKeyboard(BACKWARD, deltaTime);
+		camera.ProcessKeyboard(BACKWARD, 20 * deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera.ProcessKeyboard(LEFT, deltaTime);
+		camera.ProcessKeyboard(LEFT, 20 * deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.ProcessKeyboard(RIGHT, deltaTime);
+		camera.ProcessKeyboard(RIGHT, 20 * deltaTime);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -87,13 +87,19 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 }
 
 //地图颜色参数，从最低点按照给定颜色过度到最高点
-glm::vec3 TERRAIN_COLS[5] = { glm::vec3(201.0/255.0, 178.0/255.0, 99.0 / 255.0),glm::vec3(135.0 / 255.0, 184.0 / 255.0, 82.0 / 255.0), glm::vec3(80.0 / 255.0, 171.0 / 255.0, 93.0 / 255.0), 
-glm::vec3(120.0 / 255.0, 120.0 / 255.0, 120.0 / 255.0),glm::vec3(200.0 / 255.0, 200.0 / 255.0, 210.0 / 255.0) };
+glm::vec3 TERRAIN_COLS[5] = { 
+		glm::vec3(201.0/255.0, 178.0/255.0, 99.0 / 255.0),
+		glm::vec3(135.0 / 255.0, 184.0 / 255.0, 82.0 / 255.0), 
+		glm::vec3(80.0 / 255.0, 171.0 / 255.0, 93.0 / 255.0), 
+		glm::vec3(120.0 / 255.0, 120.0 / 255.0, 120.0 / 255.0),
+		glm::vec3(200.0 / 255.0, 200.0 / 255.0, 210.0 / 255.0) 
+	};
+
 //glm::vec3 TERRAIN_COLS[5] = { glm::vec3(1, 0,0),glm::vec3(1, 0, 0), glm::vec3(1, 0, 0), glm::vec3(1, 0, 0),glm::vec3(0, 1, 0) };
 
 int main()
 {
-	freopen("test.out", "w", stdout);
+	//freopen("test.out", "w", stdout);
 	srand(time(0));
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -131,6 +137,12 @@ int main()
 	ColourGenerator colourGen(TERRAIN_COLS,5);
 	TerrainGenerator specialGenerator(colourGen);
 	specialGenerator.generateTerrain(SIZE);
+	/*std::cout << "num=" << sizeof(map.terrainIndices) << "\n";
+	std::cout << "num=" << map.indicesIndex << "\n";
+	for (int i = 0; i < map.indicesIndex; i += 3)
+	{
+		std::cout << "x=" << map.terrainIndices[i] << " y=" << map.terrainIndices[i + 1] << " z=" << map.terrainIndices[i + 2] << std::endl;
+	}*/
 
 	specialGenerator.TerrainRender();
 	
