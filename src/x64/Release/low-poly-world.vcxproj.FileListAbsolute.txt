@@ -1,3 +1,0 @@
-E:\github\Low-Poly-world\src\x64\Release\low-poly-world.vcxproj.CopyComplete
-E:\github\Low-Poly-world\src\x64\Release\low-poly-world.exe
-E:\github\Low-Poly-world\src\x64\Release\glfw3.dll
