@@ -1,0 +1,4 @@
+E:\github\Low-Poly-world\src\x64\Debug\low-poly-world.vcxproj.CopyComplete
+E:\github\Low-Poly-world\src\x64\Debug\low-poly-world.exe
+E:\github\Low-Poly-world\src\x64\Debug\low-poly-world.pdb
+E:\github\Low-Poly-world\src\x64\Debug\glfw3.dll
