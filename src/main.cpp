@@ -12,6 +12,8 @@
 #include "lib/camera.h"
 #include "lib/shader.h"
 
+#include "Skybox/Skybox.h"
+
 #include "base.h"
 
 #include "ColourGenerater.h"
@@ -146,9 +148,14 @@ int main()
 
 	specialGenerator.TerrainRender();
 	
+	
 	//光照位置必须远大于地图大小才有明显颜色且反向比正向亮，未知原因（是否是法向量计算错误？目前使用加强环境光照看清
 	glm::vec3 lightPos((float)SIZE/2.0, (float)SIZE / 2.0, (float)SIZE *10.0);
 	glm::vec3 lightColour(1.0f, 1.0f, 1.0f);
+
+	// 创建天空盒
+	Skybox skybox;
+	skybox.init();
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -165,10 +172,13 @@ int main()
 		specialGenerator.TerrainUseshader(ourShader, camera, lightPos, lightColour);
 		specialGenerator.TerrainDraw();
 
+		skybox.draw(camera);
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 	specialGenerator.TerrainDelete();
+	skybox.deAllocate();
 	glfwTerminate();
 	return 0;
 }

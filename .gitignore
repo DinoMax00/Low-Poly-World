@@ -2,6 +2,7 @@
 *.sln
 src/.vs
 src/x64
+src/Debug
 *.db
 *.user
 *.filters
