@@ -25,7 +25,7 @@ public:
 	const unsigned int SCR_HEIGHT = 600;
 	unsigned int cubemapTexture;
 	unsigned int skyboxVAO, skyboxVBO;
-	Shader skyboxShader = Shader("Skybox/skybox.vs", "Skybox/skybox.fs");
+	Shader skyboxShader = Shader("shaders/skybox.vs", "shaders/skybox.fs");
 
 private:
 	unsigned int loadCubemap(const std::vector<std::string>& faces) {
