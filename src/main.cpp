@@ -1,4 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
+#pragma warning(disable:26812)
+#pragma warning(disable:26495)
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <cstdio>
@@ -18,7 +20,7 @@
 #include "generator\TerrainGenerator.hpp"
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 15.0f));
+Camera camera(glm::vec3(50.0f, 10.0f, 50.0f));
 float lastX = WINDOW_W / 2.0f;
 float lastY = WINDOW_H / 2.0f;
 bool firstMouse = true;
