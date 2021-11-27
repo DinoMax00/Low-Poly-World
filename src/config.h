@@ -4,6 +4,10 @@
 constexpr unsigned int WINDOW_H = 800;
 constexpr unsigned int WINDOW_W = 600;
 
+/// 相机
+constexpr float NEAR_PLANE = 0.4f;
+constexpr float FALR_PLANE = 2500;
+
 /// 地图信息
 constexpr unsigned int MAP_SIZE = 100;
 
@@ -13,6 +17,10 @@ constexpr int OCTAVES = 3;
 
 /// 地形生成相关
 constexpr float AMPLITUDE = 10; // 最大高度
+
+/// 水生成相关
+constexpr float WATER_HEIGHT = -1;
+constexpr float WAVE_SPEED = 0.002f;
 
 /// 颜色生成相关
 constexpr float COLOR_GEN_SPREAD = 0.45f;

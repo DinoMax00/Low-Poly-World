@@ -18,6 +18,7 @@
 #include "Skybox/Skybox.h"
 
 #include "generator\TerrainGenerator.hpp"
+#include "generator\WaterGenerator.hpp"
 
 // camera
 Camera camera(glm::vec3(50.0f, 10.0f, 50.0f));
@@ -109,6 +110,9 @@ int main()
 	TerrainGenerator* terrain_generator = new TerrainGenerator();
 	auto terrain = terrain_generator->createTerrain();
 
+	WaterGenerator* water_generator = new WaterGenerator();
+	auto water = water_generator->generate();
+
 	//光照位置必须远大于地图大小才有明显颜色且反向比正向亮，未知原因（是否是法向量计算错误？目前使用加强环境光照看清
 	// glm::vec3 lightPos((float)MAP_SIZE / 2.0, (float)MAP_SIZE / 2.0, (float)MAP_SIZE * 10.0);
 	glm::vec3 lightPos(0.3, -1, 0.5);
@@ -129,7 +133,13 @@ int main()
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// 启动混合并设置混合因子
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		terrain->render(camera, lightPos, lightColour);
+		glDepthMask(GL_FALSE);
+		water->render(camera, lightPos, lightColour);
+		glDepthMask(GL_TRUE);
 		skybox.draw(camera);
 
 		glfwSwapBuffers(window);

@@ -49,9 +49,8 @@ public:
 
 private:
 	float getNoise(int x, int y) {
-		srand(x * 1145 * std::pow(2, x % 5) + y * 14114 * (int)std::pow(2, y % 5) + seed);
+		srand(x * 1145 * std::pow(2, x % 13) + y * 14114 * (int)std::pow(2, y % 7) + seed);
 		auto rd = rand();
-		//std::cout << x << " " << y << " " << x * 49632 + y * 325176 + seed << " " << " " << rd << std::endl;
  		return (1.0f * rd / RAND_MAX) * 2.0f - 1.0f;
 	}
 
