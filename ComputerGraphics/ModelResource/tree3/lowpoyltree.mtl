@@ -1,0 +1,18 @@
+newmtl phong1SG
+illum 4
+Kd 1.00 1.00 1.00
+Ka 1.00 1.00 1.00
+Tf 1.00 1.00 1.00
+map_Kd wildtextures-leather-Campo-brown.jpg
+Ni 1.00
+Ks 1.00 1.00 1.00
+Ns 32.00
+newmtl phong2SG
+illum 4
+Kd 1.00 1.00 1.00
+Ka 1.00 1.00 1.00
+Tf 1.00 1.00 1.00
+map_Kd 2_BaseColor.jpg
+Ni 1.00
+Ks 1.00 1.00 1.00
+Ns 32.00
