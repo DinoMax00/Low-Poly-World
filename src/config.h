@@ -16,11 +16,16 @@ constexpr float ROUGHNESS = 0.45f; // 平滑程度
 constexpr int OCTAVES = 3;
 
 /// 地形生成相关
-constexpr float AMPLITUDE = 10; // 最大高度
+constexpr float AMPLITUDE = 15; // 最大高度
 
 /// 水生成相关
-constexpr float WATER_HEIGHT = -1;
+constexpr float WATER_HEIGHT = -1.5;
 constexpr float WAVE_SPEED = 0.002f;
+
+/// 光照相关
+constexpr glm::vec3 LIGHT_DIRECTION = glm::vec3(0.3f, -0.1f, 0.5f);
+constexpr glm::vec3 LIGHT_COLOR = glm::vec3(1.0f, 0.8f, 0.8f);
+constexpr glm::vec2 LIGHT_BIAS = glm::vec2(0.3f, 0.8f);
 
 /// 颜色生成相关
 constexpr float COLOR_GEN_SPREAD = 0.45f;

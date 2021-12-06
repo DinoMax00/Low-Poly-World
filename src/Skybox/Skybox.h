@@ -58,7 +58,7 @@ private:
 	}
 
 public:
-	void init() {
+	Skybox() {
 		std::vector<std::string> faces {
 			"Skybox/right.png",
 			"Skybox/left.png",
