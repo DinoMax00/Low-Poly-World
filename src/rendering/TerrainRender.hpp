@@ -4,6 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "../objects/Light.hpp"
 #include "../lib/camera.h"
 #include "../lib/shader.h"
 #include "../config.h"
@@ -35,18 +36,18 @@ public:
 	 * 渲染地形.
 	 * 之后考虑把light封装成一个类
 	 */
-	void render(Camera& camera, glm::vec3 light_pos, glm::vec3 light_color) {
+	void render(Camera* camera, Light* light) {
 		terrain_shader->use();
-		terrain_shader->setVec3("lightColor", light_color);
-		terrain_shader->setVec3("lightPos", light_pos);
-		terrain_shader->setVec2("lightBias", glm::vec2(0.4, 0.5));
-		terrain_shader->setVec3("viewPos", camera.Position);
+		terrain_shader->setVec3("lightColor", light->get_color());
+		terrain_shader->setVec3("lightDirection", light->get_direction());
+		terrain_shader->setVec2("lightBias", light->get_bias());
+		terrain_shader->setVec3("viewPos", camera->Position);
 
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)WINDOW_H / (float)WINDOW_W, 0.1f, 1000.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)WINDOW_H / (float)WINDOW_W, 0.1f, 1000.0f);
 		terrain_shader->setMat4("projection", projection);
 
 		// camera/view transformation
-		glm::mat4 view = camera.GetViewMatrix();
+		glm::mat4 view = camera->GetViewMatrix();
 		terrain_shader->setMat4("view", view);
 		glm::mat4 model = glm::mat4(1.0f);
 		terrain_shader->setMat4("model", model);

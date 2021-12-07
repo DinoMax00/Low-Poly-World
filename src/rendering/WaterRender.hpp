@@ -2,7 +2,7 @@
 
 #include "../lib/shader.h"
 #include "../lib/camera.h"
-
+#include "../objects/Light.hpp"
 #include "../config.h"
 
 /**
@@ -30,7 +30,7 @@ public:
 		preWork();
 	}
 
-	void render(Camera& camera, glm::vec3 light_pos, glm::vec3 light_color) {
+	void render(Camera* camera, Light* light) {
 		time += wave_speed;
 
 		/// prepare shader
@@ -38,15 +38,15 @@ public:
 		water_shader->setFloat("waveTime", time);
 		water_shader->setFloat("height", WATER_HEIGHT);
 
-		water_shader->setVec3("lightColour", light_color);
-		water_shader->setVec3("lightDirection", light_pos);
-		water_shader->setVec2("lightBias", glm::vec2(0.4, 0.5));
+		water_shader->setVec3("lightColour", light->get_color());
+		water_shader->setVec3("lightDirection", light->get_direction());
+		water_shader->setVec2("lightBias", light->get_bias());
 		
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)WINDOW_H / (float)WINDOW_W, 0.1f, 1000.0f);
-		glm::mat4 view = camera.GetViewMatrix();
+		glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)WINDOW_H / (float)WINDOW_W, 0.1f, 1000.0f);
+		glm::mat4 view = camera->GetViewMatrix();
 		glm::mat4 model = glm::mat4(1.0f);
 		water_shader->setMat4("projectionViewMatrix", projection * view * model);
-		water_shader->setVec3("cameraPos", camera.Position);
+		water_shader->setVec3("cameraPos", camera->Position);
 		// water_shader->setVec2("projectionViewMatrix", glm::vec2(NEAR_PLANE, FALR_PLANE));
 
 		// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
