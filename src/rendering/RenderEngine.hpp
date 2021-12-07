@@ -8,7 +8,8 @@
 #include "../lib/camera.h"
 #include "../config.h"
 #include "../objects/Light.hpp"
-#include "../Skybox/Skybox.h"
+#include "../Skybox/Skybox.hpp"
+#include "CloudRenderer.hpp"
 #include "TerrainRender.hpp"
 #include "WaterRender.hpp"
 
@@ -54,7 +55,7 @@ public:
 		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 		glfwSetCursorPosCallback(window, mouse_callback);
 		glfwSetScrollCallback(window, scroll_callback);
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		{
@@ -90,6 +91,16 @@ public:
 
 		skybox->draw(*camera);
 	};
+
+	/**
+	 * äÖÈ¾ÔÆ.
+	 *
+	 * @param cloud
+	 * @param light
+	 */
+	void render_cloud(CloudRenderer* cloud, Light* light) {
+		cloud->render(camera, light->get_direction(), light->get_color());
+	}
 
 	void render_postwork() {
 		glfwSwapBuffers(window);

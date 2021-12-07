@@ -15,9 +15,10 @@
 #include "lib/shader.h"
 
 #include "config.h"
-#include "Skybox/Skybox.h"
+#include "Skybox/Skybox.hpp"
 #include "generator/TerrainGenerator.hpp"
 #include "generator/WaterGenerator.hpp"
+#include "generator/CloudGenerator.hpp"
 #include "objects/Light.hpp"
 #include "rendering/RenderEngine.hpp"
 
@@ -31,6 +32,9 @@ int main()
 	WaterGenerator* water_generator = new WaterGenerator();
 	auto water = water_generator->generate();
 
+	CloudGenerator* cloud_generator = new CloudGenerator();
+	auto cloud = cloud_generator->generate();
+
 	Light* light = new Light(LIGHT_DIRECTION, LIGHT_COLOR, LIGHT_BIAS);
 
 	Skybox* skybox = new Skybox();
@@ -38,6 +42,7 @@ int main()
 	while (!engine->check_window_close())
 	{
 		engine->render_prework(skybox);
+		engine->render_cloud(cloud, light);
 		engine->render_base_obj(terrain, water, light);
 		engine->render_postwork();
 	}
