@@ -8,13 +8,13 @@
 //#include <glm/gtc/matrix_transform.hpp>
 //#include <glm/gtc/type_ptr.hpp>
 //
-//#ifndef STB_IMAGE_IMPLEMENTATION
-//#define STB_IMAGE_IMPLEMENTATION
-//#include "../lib/stb_image.h"
-//#endif // !STB_IMAGE_IMPLEMENTATION
+#ifndef STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#include "../lib/stb_image.h"
+#endif // !STB_IMAGE_IMPLEMENTATION
 //
-//#include "../lib/shader.h"
-//#include "../lib/camera.h"
+#include "../lib/shader.h"
+#include "../lib/camera.h"
 #include <vector>
 #include <string>
 
