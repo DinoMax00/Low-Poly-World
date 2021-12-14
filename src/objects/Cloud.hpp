@@ -13,7 +13,7 @@
 
 class Cloud {
 	const float PI = 3.14159265358979323846f;
-	const int SEGMENT_COUNT = 10;
+	const int SEGMENT_COUNT = 15;
 	int Y_SEGMENTS, X_SEGMENTS;
 
 public:
@@ -27,8 +27,8 @@ public:
 	unsigned int cloudVAOs[SPHERE_COUNT], cloudVBOs[SPHERE_COUNT];
 public:
 	void genVertices(int idx) {
-		Y_SEGMENTS = (rand() % SEGMENT_COUNT + SEGMENT_COUNT) * sqrt(sqrt(radius[idx]));
-		X_SEGMENTS = (rand() % SEGMENT_COUNT + SEGMENT_COUNT) * sqrt(sqrt(radius[idx]));
+		Y_SEGMENTS = (rand() % SEGMENT_COUNT / 2 + SEGMENT_COUNT) * sqrt(sqrt(radius[idx]));
+		X_SEGMENTS = (rand() % SEGMENT_COUNT / 2 + SEGMENT_COUNT) * sqrt(sqrt(radius[idx]));
 		for (int y = 0; y <= Y_SEGMENTS; y++) {
 			for (int x = 0; x <= X_SEGMENTS; x++) {
 				float xSegment = (float)x / (float)X_SEGMENTS;
@@ -64,8 +64,7 @@ public:
 				glm::vec3 v3 = sphereVertices[idx][(i + 1) * (X_SEGMENTS + 1) + j + 1];
 
 				glm::vec3 norm = glm::cross(v3 - v1, v2 - v1);
-				glm::vec3 color = rand() % 5 ? glm::vec3(1.0f, 1.0f, 1.0f)
-					: glm::vec3(0.9f, 0.9f, 0.9f);
+				glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
 				// glm::vec3 norm = glm::vec3(1.0f, 0.0f, 0.0f);
 				spherefaces[idx].push_back(v1);
 				spherefaces[idx].push_back(norm);
@@ -81,8 +80,7 @@ public:
 				v2 = sphereVertices[idx][(i + 1) * (X_SEGMENTS + 1) + j + 1];
 				v3 = sphereVertices[idx][i * (X_SEGMENTS + 1) + j + 1];
 				norm = glm::cross(v3 - v1, v2 - v1);
-				color = rand() % 5 ? glm::vec3(1.0f, 1.0f, 1.0f)
-					: glm::vec3(0.9f, 0.9f, 0.9f);
+				color = glm::vec3(1.0f, 1.0f, 1.0f);
 				spherefaces[idx].push_back(v1);
 				spherefaces[idx].push_back(norm);
 				spherefaces[idx].push_back(color);

@@ -2,6 +2,7 @@
 #define CLOUD_RENDERER
 
 #include <vector>
+#include <cmath>
 #include "../objects/Cloud.hpp"
 #include "../lib/shader.h"
 #include "../lib/camera.h"
@@ -12,12 +13,14 @@ class CloudRenderer {
 private:
 	Shader* cloudShader = nullptr;//  new Shader("cloudShader.vs", "cloudShader.fs");
 	std::vector<Cloud>* clouds = nullptr;
-	std::vector<glm::vec3> pos;
-	std::vector<float> rotate;
-	std::vector<float> scale;
+	std::vector<glm::vec3> pos; // 云的坐标
+	std::vector<float> rotate; // 旋转角度
+	std::vector<float> scale; // 缩放
+	glm::vec3 moveSpeed; // 云的运动方向
 
 	const unsigned int SCR_WIDTH = 800;
 	const unsigned int SCR_HEIGHT = 600;
+	const float MOVE_SPEED_BASE = 0.002f;
 
 public:
 	CloudRenderer() {
@@ -31,11 +34,21 @@ public:
 		pos.resize(clouds->size());
 		rotate.resize(clouds->size());
 		scale.resize(clouds->size());
-		for (auto& i : pos) i = glm::vec3(rand() % MAP_SIZE, AMPLITUDE + 3 + rand() % 10, rand() % MAP_SIZE);
-		for (auto& i : rotate)i = rand();
-		for (auto& i : scale) i = 1.0 + 0.6 * rand() / RAND_MAX;
-		// std::cout << clouds->size() << std::endl;
- 	}
+		for (auto& i : pos) { // 设置各个云坐标
+			i.x = MAP_SIZE / 2 + (rand() * 2 - RAND_MAX) % ((int)MAP_SIZE / 2 - 5);
+			i.y = AMPLITUDE + 8 + rand() % 10;
+			i.z = MAP_SIZE / 2 + (rand() * 2 - RAND_MAX) % ((int)MAP_SIZE / 2 - 5);
+		}
+		for (auto& i : rotate)i = rand(); // 设置旋转角度
+		for (auto& i : scale) i = 1.5 + 2.0 * rand() / RAND_MAX; // 设置 scale
+		moveSpeed = glm::vec3(-MOVE_SPEED_BASE + MOVE_SPEED_BASE * 2 * rand() / RAND_MAX, 
+							0.0f, -MOVE_SPEED_BASE + MOVE_SPEED_BASE * 2 * rand() / RAND_MAX); // 设置云的运动方向
+		// 防止速度过小
+		if (moveSpeed.x < 0) moveSpeed.x = std::min(moveSpeed.x, -1.0f * MOVE_SPEED_BASE / 2);
+		if (moveSpeed.x > 0) moveSpeed.x = std::max(moveSpeed.x, 1.0f * MOVE_SPEED_BASE / 2);
+		if (moveSpeed.z < 0) moveSpeed.z = std::min(moveSpeed.z, -1.0f * MOVE_SPEED_BASE / 2);
+		if (moveSpeed.z > 0) moveSpeed.z = std::max(moveSpeed.z, 1.0f * MOVE_SPEED_BASE / 2);
+	}
 
 	void render(Camera* camera, glm::vec3 lightDir, glm::vec3 lightColor) {
 		cloudShader->use();
@@ -64,6 +77,13 @@ public:
 		for (int i = 0; i < clouds->size(); i++) {
 			Cloud cloud = (*clouds)[i];
 			glm::mat4 model = glm::mat4(1.0f);
+			pos[i] += moveSpeed / scale[i] * glm::vec3(pos[i].y / 15); // 根据云的大小 高度设置速度
+			if (pos[i].x < -10) pos[i].x += MAP_SIZE;
+			else if (pos[i].x > MAP_SIZE + 10) pos[i].x -= MAP_SIZE;
+
+			if (pos[i].z < -10) pos[i].z += MAP_SIZE;
+			else if (pos[i].z > MAP_SIZE + 10) pos[i].z -= MAP_SIZE;
+
 			model = glm::translate(model, pos[i]);
 			model = glm::scale(model, glm::vec3(1.0f * scale[i], 1.0f * scale[i], 0.9f * scale[i]));// make sure to initialize matrix to identity matrix first
 			model = glm::rotate(model, glm::radians(rotate[i]), glm::vec3(0.0f, 1.0f, 0.0f));

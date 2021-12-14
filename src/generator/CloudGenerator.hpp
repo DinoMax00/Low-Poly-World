@@ -8,7 +8,7 @@
 class CloudGenerator {
 public:
 	CloudRenderer* generate() {
-		std::vector<Cloud>* clouds = new std::vector<Cloud>(5 + rand() % 5);
+		std::vector<Cloud>* clouds = new std::vector<Cloud>(8 + rand() % 8);
 		for (auto& i : *clouds) i.generate();
 		return new CloudRenderer(clouds);
 	}
