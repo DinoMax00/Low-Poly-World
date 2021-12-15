@@ -125,8 +125,8 @@ public:
 		this->radius[2] = 0.6 + 0.25 * std::rand() / RAND_MAX;
 
 		this->internalPositions[0] = glm::vec3(0.0f, 0.0f, 0.0f);
-		this->internalPositions[1] = glm::vec3(0.6 + 0.4 * radius[1] * std::rand() / RAND_MAX, 0.0f, 0.0f);
-		this->internalPositions[2] = glm::vec3(-0.6f - 0.4 * radius[2] * std::rand() / RAND_MAX, 0.0f, 0.0f);
+		this->internalPositions[1] = glm::vec3(0.6 + 0.3 * radius[1] * std::rand() / RAND_MAX, 0.0f, 0.0f);
+		this->internalPositions[2] = glm::vec3(-0.6f - 0.3 * radius[2] * std::rand() / RAND_MAX, 0.0f, 0.0f);
 
 		for (int i = 0; i < SPHERE_COUNT; i++) this->genVertices(i), this->genfaces(i);
 	}

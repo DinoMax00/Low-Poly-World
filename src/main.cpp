@@ -10,6 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iomanip>
 
+#define STB_IMAGE_IMPLEMENTATION
 #include "lib/stb_image.h"
 #include "lib/camera.h"
 #include "lib/shader.h"

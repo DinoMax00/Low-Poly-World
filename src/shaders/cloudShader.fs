@@ -34,5 +34,5 @@ void main()
     vec3 diffuse = light.diffuse * (diff * material.diffuse);
 
     vec3 result = (ambient + diffuse);
-    FragColor = vec4(result, 0.92);
+    FragColor = vec4(result, 0.92f);
 } 
