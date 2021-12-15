@@ -3,7 +3,7 @@
 const float PI = 3.1415926535897932384626433832795;
 
 const float waveLength = 4.0;
-const float waveAmplitude = 0.9;
+const float waveAmplitude = 0.2;
 const float specularReflectivity = 0.4;
 const float shineDamper = 20.0;
 
@@ -61,29 +61,28 @@ vec3 applyDistortion(vec3 vertex){
 
 void main(void){
 	
-	// 三个点的坐标
+	//get the grid position of all 3 vertices in the triangle
 	vec3 currentVertex = vec3(in_position.x, height, in_position.y);
 	vec3 vertex1 = currentVertex + vec3(in_indicators.x, 0.0, in_indicators.y);
 	vec3 vertex2 = currentVertex + vec3(in_indicators.z, 0.0, in_indicators.w);
 	
 	pass_clipSpaceGrid = projectionViewMatrix * vec4(currentVertex, 1.0);
 	
-	// 根据波动时间 对三个点进行位移
+	//apply distortion to all 3 vertices
 	currentVertex = applyDistortion(currentVertex);
 	vertex1 = applyDistortion(vertex1);
 	vertex2 = applyDistortion(vertex2);
 	
-	// 计算法向量，叉积
 	pass_normal = calcNormal(currentVertex, vertex1, vertex2);
 	
-	// 对坐标进行修正
 	pass_clipSpaceReal = projectionViewMatrix * vec4(currentVertex, 1.0);
 	gl_Position = pass_clipSpaceReal;
 	
 	pass_toCameraVector = normalize(cameraPos - currentVertex);
 	
-	// 计算光照
+	//calculate lighting
 	vec3 toLightVector = -normalize(lightDirection);
 	pass_specular = calcSpecularLighting(pass_toCameraVector, toLightVector, pass_normal);
 	pass_diffuse = calculateDiffuseLighting(toLightVector, pass_normal);
+
 }

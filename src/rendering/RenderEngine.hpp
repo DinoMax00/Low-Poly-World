@@ -9,6 +9,7 @@
 #include "../config.h"
 #include "../objects/Light.hpp"
 #include "../Skybox/Skybox.hpp"
+#include "../objects/Fbo.hpp"
 #include "CloudRenderer.hpp"
 #include "TerrainRender.hpp"
 #include "WaterRender.hpp"
@@ -33,7 +34,11 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 class RenderEngine {
 private:
 	GLFWwindow* window;
+	Fbo* reflection_fbo; // 反射
+	Fbo* refraction_fbo; // 折射
 
+	Shader* screenShader;
+	unsigned int quadVAO, quadVBO;
 public:
 
 	RenderEngine() {
@@ -42,7 +47,7 @@ public:
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		window = glfwCreateWindow(WINDOW_H, WINDOW_W, "Low-Poly-World", NULL, NULL);
+		window = glfwCreateWindow(WINDOW_W, WINDOW_H, "Low-Poly-World", NULL, NULL);
 
 		if (window == NULL)
 		{
@@ -62,65 +67,93 @@ public:
 			std::cout << "Failed to initialize GLAD" << std::endl;
 			exit(-1);
 		}
-
-		glEnable(GL_DEPTH_TEST);
+		
+		refraction_fbo = new Fbo(WINDOW_W, WINDOW_H, true);
+		reflection_fbo = new Fbo(WINDOW_W, WINDOW_H, false);
 	}
 
 	~RenderEngine() {
+		glDeleteVertexArrays(1, &quadVAO);
+		glDeleteBuffers(1, &quadVBO);
 		glfwTerminate();
 	}
 
-	bool check_window_close() {
+	bool checkWindowClose() {
 		return glfwWindowShouldClose(window);
 	}
 
 	/**
-	 * 渲染初始化工作，天空盒作为背景在这里绘制.
+	 * 渲染初始化工作.
 	 * 
 	 * \param skybox
 	 */
-	void render_prework(Skybox* skybox) {
+	void renderPrework(Skybox* skybox) {
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
 		processInput(window);
-
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		skybox->draw(*camera);
+		prepare();
 	};
 
-	/**
-	 * 渲染云.
-	 *
-	 * @param cloud
-	 * @param light
-	 */
-	void render_cloud(CloudRenderer* cloud, Light* light) {
-		cloud->render(camera, light->get_direction(), light->get_color());
-	}
-
-	void render_postwork() {
+	void renderPostwork() {
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	};
 
 	/**
-	 * 渲染基本地形，这个函数只负责渲染地形和水.
+	 * 因为某些奇怪的原因，这个函数负责渲染所有东西
 	 * 
 	 * \param terrain
 	 * \param water
 	 * \param light
 	 */
-	void render_base_obj(TerrainRender* terrain, WaterRender* water, Light* light) {
+	void renderObjs(TerrainRender* terrain, WaterRender* water, Skybox* skybox, CloudRenderer* cloud, Light* light) {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		terrain->render(camera, light);
-		glDepthMask(GL_FALSE);
-		water->render(camera, light);
-		glDepthMask(GL_TRUE);
+
+		glEnable(GL_CLIP_DISTANCE0);
+		prepareReflection(terrain, light);
+		prepareRefraction(terrain, light);
+		glDisable(GL_CLIP_DISTANCE0);
+
+		prepare();
+		// 先画天空盒
+		skybox->draw(*camera);
+		terrain->render(camera, light, glm::vec4(0, 0, 0, 0));
+		water->render(camera, light, 
+			reflection_fbo->getColorBuffer(), 
+			refraction_fbo->getColorBuffer(),
+			refraction_fbo->getDepthBuffer()
+		);
+		cloud->render(camera, light->get_direction(), light->get_color());
+	}
+
+private:
+
+	void prepareReflection(TerrainRender* terrain, Light* light) {
+		reflection_fbo->bind();
+		camera->reflect();
+		prepare();
+		terrain->render(camera, light, glm::vec4(0, 1, 0, -WATER_HEIGHT + REFLECT_OFFSET));
+		camera->reflect();
+		reflection_fbo->unbind();
+	}
+
+	void prepareRefraction(TerrainRender* terrain, Light* light) {
+		refraction_fbo->bind();
+		prepare();
+		terrain->render(camera, light, glm::vec4(0, -1, 0, WATER_HEIGHT + REFRACT_OFFSET));
+		refraction_fbo->unbind();
+	}
+
+	void prepare() {
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glProvokingVertex(GL_FIRST_VERTEX_CONVENTION);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_MULTISAMPLE); // 抗锯齿
+		glEnable(GL_CULL_FACE);   // 面剔除
 	}
 };
 

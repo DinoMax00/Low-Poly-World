@@ -1,27 +1,12 @@
-#version 330 core
-out vec4 FragColor;  
+#version 330
 
-flat in vec3 ourColor;
-flat in vec3 Normal;  
-in vec3 FragPos;  
-  
-//Âþ·´Éä
-uniform vec3 lightDirection; 
-uniform vec3 lightColor;
-uniform vec2 lightBias;
+flat in vec3 pass_colour;
 
-//¾µÃæ·´Éä
-uniform vec3 viewPos;
+out vec4 out_colour;
 
-//simple diffuse lighting
-vec3 calculateLighting() {
-	vec3 normal = Normal * 2.0 - 1.0;//required just because of the format the normals were stored in (0 - 1)
-	float brightness = max(dot(-lightDirection, normal), 0.0);
-	return (lightColor * lightBias.x) + (brightness * lightColor * lightBias.y);
-}
 
-void main()
-{
-    vec3 result = ourColor * calculateLighting();
-    FragColor = vec4(result, 1.0);
+void main(void){
+
+	out_colour = vec4(pass_colour, 1.0);
+
 }

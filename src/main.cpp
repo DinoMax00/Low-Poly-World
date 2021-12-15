@@ -38,14 +38,14 @@ int main()
 	Light* light = new Light(LIGHT_DIRECTION, LIGHT_COLOR, LIGHT_BIAS);
 
 	Skybox* skybox = new Skybox();
-	
-	while (!engine->check_window_close())
+
+	while (!engine->checkWindowClose())
 	{
-		engine->render_prework(skybox);
-		engine->render_cloud(cloud, light);
-		engine->render_base_obj(terrain, water, light);
-		engine->render_postwork();
+		engine->renderPrework(skybox);
+		
+		engine->renderObjs(terrain, water, skybox, cloud, light);
+		engine->renderPostwork();
 	}
-	
+
 	return 0;
 }

@@ -57,27 +57,26 @@ vec2 clipSpaceToTexCoords(vec4 clipSpace){
 
 void main(void){
 
-	// vec2 texCoordsReal = clipSpaceToTexCoords(pass_clipSpaceReal);
-	// vec2 texCoordsGrid = clipSpaceToTexCoords(pass_clipSpaceGrid);
+	vec2 texCoordsReal = clipSpaceToTexCoords(pass_clipSpaceReal);
+	vec2 texCoordsGrid = clipSpaceToTexCoords(pass_clipSpaceGrid);
 	
-	// vec2 refractionTexCoords = texCoordsGrid;
-	// vec2 reflectionTexCoords = vec2(texCoordsGrid.x, 1.0 - texCoordsGrid.y);
-	// float waterDepth = calculateWaterDepth(texCoordsReal);
+	vec2 refractionTexCoords = texCoordsGrid;
+	vec2 reflectionTexCoords = vec2(texCoordsGrid.x, 1.0 - texCoordsGrid.y);
+	float waterDepth = calculateWaterDepth(texCoordsReal);
 	
-	// vec3 refractColour = texture(refractionTexture, refractionTexCoords).rgb;
-	// vec3 reflectColour = texture(reflectionTexture, reflectionTexCoords).rgb;
+	vec3 refractColour = texture(refractionTexture, refractionTexCoords).rgb;
+	vec3 reflectColour = texture(reflectionTexture, reflectionTexCoords).rgb;
 	
-	// // 水的颜色
-	// refractColour = applyMurkiness(refractColour, waterDepth);
-	// reflectColour = mix(reflectColour, waterColour, minBlueness);
+	//apply some blueness
+	refractColour = applyMurkiness(refractColour, waterDepth);
+	reflectColour = mix(reflectColour, waterColour, minBlueness);
 	
-	// vec3 finalColour = mix(reflectColour, refractColour, calculateFresnel());
-	// finalColour = finalColour * pass_diffuse + pass_specular;
+	vec3 finalColour = mix(reflectColour, refractColour, calculateFresnel());
+	finalColour = finalColour;//* pass_diffuse + pass_specular;
 	
-	// out_colour = vec4(finalColour, 0.8);
-	out_colour = vec4(waterColour, 0.8);
-	// out_colour.a = 0.1;
-	// apply soft edges
-	// out_colour.a = clamp(waterDepth / edgeSoftness, 0.0, 1.0);
+	out_colour = vec4(finalColour, 1.0);
+	
+	//apply soft edges
+	out_colour.a = clamp(waterDepth / edgeSoftness, 0.0, 1.0);
 
 }

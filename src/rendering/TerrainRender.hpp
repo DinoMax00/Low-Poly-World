@@ -32,29 +32,28 @@ public:
 		preWork();
 	}
 
+	~TerrainRender() {
+		glDeleteVertexArrays(1, &VAO);
+		glDeleteBuffers(1, &VBO);
+		glDeleteBuffers(1, &EBO);
+	}
+
 	/**
 	 * 渲染地形.
 	 * 之后考虑把light封装成一个类
 	 */
-	void render(Camera* camera, Light* light) {
+	void render(Camera* camera, Light* light, glm::vec4 plane) {
 		terrain_shader->use();
-		terrain_shader->setVec3("lightColor", light->get_color());
+		terrain_shader->setVec3("lightColour", light->get_color());
 		terrain_shader->setVec3("lightDirection", light->get_direction());
 		terrain_shader->setVec2("lightBias", light->get_bias());
-		terrain_shader->setVec3("viewPos", camera->Position);
+		terrain_shader->setVec4("plane", plane);
 
-		glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)WINDOW_H / (float)WINDOW_W, 0.1f, 1000.0f);
-		terrain_shader->setMat4("projection", projection);
-
-		// camera/view transformation
+		glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)WINDOW_W / (float)WINDOW_H, NEAR_PLANE, FAR_PLANE);
 		glm::mat4 view = camera->GetViewMatrix();
-		terrain_shader->setMat4("view", view);
 		glm::mat4 model = glm::mat4(1.0f);
-		terrain_shader->setMat4("model", model);
+		terrain_shader->setMat4("projectionViewMatrix", projection * view * model);
 
-		terrain_shader->setFloat("opc", 1.0f);
-
-		// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glProvokingVertex(GL_FIRST_VERTEX_CONVENTION);
 		glBindVertexArray(this->VAO);
 		glDrawElements(GL_TRIANGLES, idc_len, GL_UNSIGNED_INT, 0);
