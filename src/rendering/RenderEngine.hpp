@@ -119,7 +119,7 @@ public:
 
 		prepare();
 		// ÏÈ»­Ìì¿ÕºÐ
-		skybox->draw(*camera);
+		skybox->draw(camera);
 		terrain->render(camera, light, glm::vec4(0, 0, 0, 0));
 		water->render(camera, light, 
 			reflection_fbo->getColorBuffer(), 

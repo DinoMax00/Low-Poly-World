@@ -7,24 +7,23 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "../config.h"
 
 #include <vector>
 #include <iostream>
 
 class Cloud {
-	const float PI = 3.14159265358979323846f;
-	const int SEGMENT_COUNT = 15;
-	int Y_SEGMENTS, X_SEGMENTS;
-
 public:
 	static const int SPHERE_COUNT = 3;
-	std::vector<glm::vec3> sphereVertices[3];
-	std::vector<glm::vec3> spherefaces[3]; // pos-vec3 color-vec3 faces-vec3
+	std::vector<glm::vec3> spherefaces[SPHERE_COUNT]; // pos-vec3 color-vec3 faces-vec3
+	unsigned int cloudVAOs[SPHERE_COUNT], cloudVBOs[SPHERE_COUNT];
+
+private:
+	int Y_SEGMENTS, X_SEGMENTS;
+	std::vector<glm::vec3> sphereVertices[SPHERE_COUNT];
 	glm::vec3 internalPositions[SPHERE_COUNT]; // relative position in model
 	float radius[SPHERE_COUNT];
 
-public:
-	unsigned int cloudVAOs[SPHERE_COUNT], cloudVBOs[SPHERE_COUNT];
 public:
 	void genVertices(int idx) {
 		Y_SEGMENTS = (rand() % SEGMENT_COUNT / 2 + SEGMENT_COUNT) * sqrt(sqrt(radius[idx]));
@@ -44,9 +43,9 @@ public:
 				}
 
 				if (std::fabs(yPos) > 1e-5 && std::fabs(zPos) > 1e-5 && std::fabs(xPos) > 1e-5) {
-					xPos += (yPos > 1e-5 ? 0.6 * std::pow(radius[idx], 2) : 0.1) / SEGMENT_COUNT * (std::rand() * 2 - RAND_MAX) / RAND_MAX;
-					yPos += (yPos > 1e-5 ? 0.6 * std::pow(radius[idx], 2) : 0.1) / SEGMENT_COUNT * (std::rand() * 2 - RAND_MAX) / RAND_MAX;
-					zPos += (yPos > 1e-5 ? 0.6 * std::pow(radius[idx], 2) : 0.1) / SEGMENT_COUNT * (std::rand() * 2 - RAND_MAX) / RAND_MAX;
+					xPos += (yPos > 1e-5 ? 0.8 * std::pow(radius[idx], 2) : 0.3) / SEGMENT_COUNT * (std::rand() * 2 - RAND_MAX) / RAND_MAX;
+					yPos += (yPos > 1e-5 ? 0.8 * std::pow(radius[idx], 2) : 0.3) / SEGMENT_COUNT * (std::rand() * 2 - RAND_MAX) / RAND_MAX;
+					zPos += (yPos > 1e-5 ? 0.8 * std::pow(radius[idx], 2) : 0.3) / SEGMENT_COUNT * (std::rand() * 2 - RAND_MAX) / RAND_MAX;
 				}
 
 
@@ -121,12 +120,12 @@ public:
 
 	void generate() {
 		this->radius[0] = 1.0f;
-		this->radius[1] = 0.6 + 0.25 * std::rand() / RAND_MAX;
-		this->radius[2] = 0.6 + 0.25 * std::rand() / RAND_MAX;
+		this->radius[1] = (0.6 + 0.25 * std::rand() / RAND_MAX);
+		this->radius[2] = (0.6 + 0.25 * std::rand() / RAND_MAX);
 
 		this->internalPositions[0] = glm::vec3(0.0f, 0.0f, 0.0f);
-		this->internalPositions[1] = glm::vec3(0.6 + 0.3 * radius[1] * std::rand() / RAND_MAX, 0.0f, 0.0f);
-		this->internalPositions[2] = glm::vec3(-0.6f - 0.3 * radius[2] * std::rand() / RAND_MAX, 0.0f, 0.0f);
+		this->internalPositions[1] = glm::vec3(sqrt(1.0f - this->radius[1] * this->radius[1]) - 0.1 * rand() / RAND_MAX, 0.0f, 0.0f);
+		this->internalPositions[2] = glm::vec3(-sqrt(1.0f - this->radius[2] * this->radius[2]) + 0.1 * rand() / RAND_MAX, 0.0f, 0.0f);
 
 		for (int i = 0; i < SPHERE_COUNT; i++) this->genVertices(i), this->genfaces(i);
 	}

@@ -24,6 +24,12 @@ constexpr float WAVE_SPEED = 0.002f;
 constexpr float REFRACT_OFFSET = 1.0f;
 constexpr float REFLECT_OFFSET = 0.1f;
 
+// 云相关
+constexpr float CLOUD_SCALE = 2.5f; // 用于调整大小
+constexpr float CLOUD_BASE_HEIGHT = AMPLITUDE + 6; // 基础高度 会在高度上下偏置
+constexpr int SEGMENT_COUNT = 15;
+constexpr float PI = 3.14159265358979323846f;
+
 /// 光照相关
 constexpr glm::vec3 LIGHT_DIRECTION = glm::vec3(0.3f, -0.1f, 0.5f);
 constexpr glm::vec3 LIGHT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
