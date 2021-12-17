@@ -23,21 +23,21 @@ private:
 	float half_spread;
 	/// 颜色分组信息
 	float part;
-
+	/// 颜色生成高度范围
+	float amplitude;
 	/// 预设的颜色数组，数组内元素由第到高为地形染色。
 	color* color_arr;
 
 public:
 	/**
-	 * @brief 无参构造
+	 * 构造函数.
+	 * 
+	 * \param len 颜色数组长度
+	 * \param arr 颜色数组
 	 */
-	ColorGenerator() {
-		int len = sizeof(COLOR_GEN_ARR) / sizeof(COLOR_GEN_ARR[0]);
-		color_arr = new color[len];
-		for (int i = 0; i < len; ++i) {
-			color_arr[i] = color(COLOR_GEN_ARR[i][0], COLOR_GEN_ARR[i][1], COLOR_GEN_ARR[i][2]);
-		}
-		
+	ColorGenerator(int len, color arr[], int _amplitude) {
+		amplitude = _amplitude;
+		color_arr = arr;
 		spread = COLOR_GEN_SPREAD;
 		half_spread = spread / 2;
 
@@ -46,23 +46,13 @@ public:
 	}
 
 	/**
-	 * @brief 根据地图高度信息生成各个点的颜色。
-	 * @param height_map 二维float数组
+	 * 根据高度生成颜色值.
 	 * 
-	 * @return 二维数组存储各点对应rgb值
+	 * \param height
+	 * \return 
 	 */
-	color** generate(float** height_map) {
-		color** color_map = new color*[MAP_SIZE + 1];
-
-		for (int i = 0; i < MAP_SIZE + 1; ++i) {
-			color_map[i] = new color[MAP_SIZE + 1];
-
-			for (int j = 0; j < MAP_SIZE + 1; ++j) {
-				color_map[i][j] = calculateColor(height_map[i][j]);
-			}
-		}
-
-		return color_map;
+	color generate(float height) {
+		return calculateColor(height);
 	}
 
 private:
@@ -89,12 +79,11 @@ private:
 	 * @return rgb值
 	 */
 	color calculateColor(float height) {
-		float val = (height + AMPLITUDE) / (AMPLITUDE * 2);
+		float val = (height + amplitude) / (amplitude * 2);
 		val = std::max(std::min(.9999f, (val - half_spread) * (1 / spread)), .0f);
 		
 		// 在颜色数组中的位置
 		int pos = (int)std::floor(val / part);
-		assert(pos < sizeof(COLOR_GEN_ARR) / sizeof(COLOR_GEN_ARR[0]));
 
 		float lambda = (val - pos * part) / part;
 		return interpolationColor(color_arr[pos], color_arr[pos + 1], lambda);

@@ -24,20 +24,22 @@ constexpr float WAVE_SPEED = 0.002f;
 constexpr float REFRACT_OFFSET = 1.0f;
 constexpr float REFLECT_OFFSET = 0.1f;
 
-// 云相关
+/// 云相关
 constexpr float CLOUD_SCALE = 2.5f; // 用于调整大小
 constexpr float CLOUD_BASE_HEIGHT = AMPLITUDE + 6; // 基础高度 会在高度上下偏置
 constexpr int SEGMENT_COUNT = 15;
 constexpr float PI = 3.14159265358979323846f;
 
 /// 光照相关
-constexpr glm::vec3 LIGHT_DIRECTION = glm::vec3(0.3f, -0.1f, 0.5f);
-constexpr glm::vec3 LIGHT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
-constexpr glm::vec2 LIGHT_BIAS = glm::vec2(0.3f, 0.8f);
+const glm::vec3 LIGHT_DIRECTION = glm::vec3(0.3f, -0.1f, 0.5f);
+const glm::vec3 LIGHT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
+const glm::vec2 LIGHT_BIAS = glm::vec2(0.3f, 0.8f);
 
 /// 颜色生成相关
 constexpr float COLOR_GEN_SPREAD = 0.45f;
-static const float COLOR_GEN_ARR[][3] = {
+// 预置的颜色数组 和数组长度
+const int COLOR_ARR_LEN1 = 5;
+static glm::vec3 COLOR_ARR1[] = {
 	{ 201.0 / 255.0, 178.0 / 255.0, 99.0 / 255.0 },
 	{ 135.0 / 255.0, 184.0 / 255.0, 82.0 / 255.0 },
 	{ 80.0 / 255.0, 171.0 / 255.0, 93.0 / 255.0 },

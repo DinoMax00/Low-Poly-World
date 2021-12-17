@@ -22,11 +22,8 @@ public:
 	 * @brief 无参构造 参数先直接从config里取了
 	 *
 	 */
-	NoiseGenerator() {
+	NoiseGenerator(float _roughness, int _octaves, float _amplitude): roughness(_roughness), octaves(_octaves), amplitude(_amplitude) {
 		seed = time(0);
-		roughness = ROUGHNESS;
-		octaves = OCTAVES;
-		amplitude = AMPLITUDE;
 	}
 
 	/**

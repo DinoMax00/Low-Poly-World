@@ -27,10 +27,11 @@ public:
 	TerrainGenerator() {
 		aq = new AquNoise();
 
-		noise_gen = new NoiseGenerator();
-		color_gen = new ColorGenerator();
+		noise_gen = new NoiseGenerator(ROUGHNESS, OCTAVES, AMPLITUDE);
+		color_gen = new ColorGenerator(COLOR_ARR_LEN1, COLOR_ARR1, AMPLITUDE);
+
 		generateHeightMap();
-		color_map = color_gen->generate(height_map);
+		generateColorMap();
 	}
 
 	/**
@@ -59,6 +60,21 @@ private:
 			for (int x = 0; x < MAP_SIZE + 1; ++x) {
 				height_map[z][x] = noise_gen->getPerlinNoise(x, z);
 				// height_map[z][x] = aq->noiseLayer(1.0 * z / 100, 1.0 * x / 100);
+			}
+		}
+	}
+
+	/**
+	 * 生成地形图后，再生成各点对应的颜色.
+	 * 
+	 */
+	void generateColorMap() {
+		color_map = new color* [MAP_SIZE + 1];
+		// 生成的地图在x-z平面上
+		for (int z = 0; z < MAP_SIZE + 1; ++z) {
+			color_map[z] = new color[MAP_SIZE + 1];
+			for (int x = 0; x < MAP_SIZE + 1; ++x) {
+				color_map[z][x] = color_gen->generate(height_map[z][x]);
 			}
 		}
 	}
