@@ -3,7 +3,7 @@
 const float PI = 3.1415926535897932384626433832795;
 
 const float waveLength = 4.0;
-const float waveAmplitude = 0.2;
+const float waveAmplitude = 2;
 const float specularReflectivity = 0.4;
 const float shineDamper = 20.0;
 
@@ -66,6 +66,7 @@ void main(void){
 	vec3 vertex1 = currentVertex + vec3(in_indicators.x, 0.0, in_indicators.y);
 	vec3 vertex2 = currentVertex + vec3(in_indicators.z, 0.0, in_indicators.w);
 	
+	currentVertex *= 3; vertex1 *= 3; vertex2 *= 3;
 	pass_clipSpaceGrid = projectionViewMatrix * vec4(currentVertex, 1.0);
 	
 	//apply distortion to all 3 vertices
