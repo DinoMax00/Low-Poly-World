@@ -10,3 +10,4 @@ src/Debug
 *.db-wal
 *.db-shm
 src/test.out
+src/Release

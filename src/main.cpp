@@ -10,7 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iomanip>
 
-#define STB_IMAGE_IMPLEMENTATION
+// #define STB_IMAGE_IMPLEMENTATION
 #include "lib/stb_image.h"
 #include "lib/camera.h"
 #include "lib/shader.h"
@@ -23,11 +23,11 @@
 #include "objects/Light.hpp"
 #include "rendering/RenderEngine.hpp"
 #include "rendering/ParticleRenderer.hpp"
+#include "animation/bone.h"
 
 int main()
 {
 	RenderEngine* engine = new RenderEngine();
-
 	TerrainGenerator* terrain_generator = new TerrainGenerator();
 	auto terrain = terrain_generator->createTerrain();
 
@@ -43,12 +43,14 @@ int main()
 							 glm::vec3(0.0f, -0.16f, 0.0f),
 							 glm::vec2(0.0f, 0.0f),
 							 glm::vec2(600, 600),
-							 AMPLITUDE2 * 2.5,
-							 600);
+							 AMPLITUDE2 * 2.5 * 2,
+							 600 * 4);
 
 	Light* light = new Light(LIGHT_DIRECTION, LIGHT_COLOR, LIGHT_BIAS);
 
 	Skybox* skybox = new Skybox();
+
+	engine->set_height_map(terrain_generator->get_height_map());
 
 	while (!engine->checkWindowClose())
 	{

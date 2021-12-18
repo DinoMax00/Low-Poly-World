@@ -14,6 +14,7 @@
 #include "TerrainRender.hpp"
 #include "WaterRender.hpp"
 #include "ParticleRenderer.hpp"
+#include "../animation/bone.h"
 
 static Camera* camera = new Camera(glm::vec3(50.0f, 10.0f, 50.0f));
 static float lastX = WINDOW_W / 2.0f;
@@ -35,12 +36,17 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 class RenderEngine {
 private:
 	GLFWwindow* window;
-	Fbo* reflection_fbo; // ·´Éä
-	Fbo* refraction_fbo; // ÕÛÉä
+	Fbo* reflection_fbo = 0; // ·´Éä
+	Fbo* refraction_fbo = 0; // ÕÛÉä
 
-	Shader* screenShader;
-	unsigned int quadVAO, quadVBO;
+	BoneAnimation* little_people;
+	float** height_map;
+
 public:
+
+	void set_height_map(float** h) {
+		height_map = h;
+	}
 
 	RenderEngine() {
 		glfwInit();
@@ -71,11 +77,13 @@ public:
 		
 		refraction_fbo = new Fbo(WINDOW_W, WINDOW_H, true);
 		reflection_fbo = new Fbo(WINDOW_W, WINDOW_H, false);
+
+		little_people = new BoneAnimation("resources/model.dae", "resources/diffuse.png", "shaders/bone.vs", "shaders/bone.fs");
+		Shader bone_shader("shaders/bone.vs", "shaders/bone.fs");
+		little_people->initial(bone_shader, *camera, window);
 	}
 
 	~RenderEngine() {
-		glDeleteVertexArrays(1, &quadVAO);
-		glDeleteBuffers(1, &quadVBO);
 		glfwTerminate();
 	}
 
@@ -121,12 +129,23 @@ public:
 		prepare();
 		// ÏÈ»­Ìì¿ÕºÐ
 		skybox->draw(camera);
+
 		terrain->render(camera, light, glm::vec4(0, 0, 0, 0));
+
 		water->render(camera, light, 
 			reflection_fbo->getColorBuffer(), 
 			refraction_fbo->getColorBuffer(),
 			refraction_fbo->getDepthBuffer()
 		);
+		
+		camera->ModelPosition.x = std::min(camera->ModelPosition.x, (float)MAP_SIZE * 3 - 5);
+		camera->ModelPosition.x = std::max(camera->ModelPosition.x, (float)0);
+		camera->ModelPosition.z = std::min(camera->ModelPosition.z, (float)MAP_SIZE * 3 - 5);
+		camera->ModelPosition.z = std::max(camera->ModelPosition.z, (float)0);
+		Shader bone_shader("shaders/bone.vs", "shaders/bone.fs");
+		
+		little_people->show(bone_shader, *camera, light->get_direction(), window, get_height(camera->ModelPosition.x, camera->ModelPosition.z));
+
 		particles->render(camera, light->get_direction(), light->get_color());
 		cloud->render(camera, light->get_direction(), light->get_color());
 	}
@@ -156,6 +175,38 @@ private:
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_MULTISAMPLE); // ¿¹¾â³Ý
 		glEnable(GL_CULL_FACE);   // ÃæÌÞ³ý
+	}
+
+	float get_height(float z, float x) {
+		int r1 = x / 3, c1 = z / 3;
+		int r2 = r1, r3 = r1 + 1, r4 = r1 + 1;
+		int c2 = c1 + 1, c3 = c1, c4 = c1 + 1;
+		glm::vec3 p1, p2, p3;
+
+		if (r1 % 2 != c1 % 2) {
+			p1 = glm::vec3(r1 * 3, c1 * 3, 3 * height_map[r1][c1]);
+			p2 = glm::vec3(r4 * 3, c4 * 3, 3 * height_map[r4][c4]);
+			if (x - r1 * 3 < z - c1 * 3) 
+				p3 = glm::vec3(r2 * 3, c2 * 3, 3 * height_map[r2][c2]);
+			else 
+				p3 = glm::vec3(r3 * 3, c3 * 3, 3 * height_map[r3][c3]);
+		}
+		else {
+			p1 = glm::vec3(r2 * 3, c2 * 3, 3 * height_map[r2][c2]);
+			p2 = glm::vec3(r3 * 3, c3 * 3, 3 * height_map[r3][c3]);
+			if (x - r1 * 3 < c2 * 3 - z)
+				p3 = glm::vec3(r1 * 3, c1 * 3, 3 * height_map[r1][c1]);
+			else
+				p3 = glm::vec3(r4 * 3, c4 * 3, 3 * height_map[r4][c4]);
+		}
+
+		p1 -= p3;
+		p2 -= p3;
+		auto p = glm::vec3(p1.y * p2.z - p1.z * p2.y, -p1.x * p2.z + p1.z * p2.x, p1.x * p2.y - p1.y * p2.x);
+		auto d = p.x * p3.x + p.y * p3.y + p.z * p3.z;
+		float ans = d - p.x * x - p.y * z;
+		ans /= p.z;
+		return ans;
 	}
 };
 

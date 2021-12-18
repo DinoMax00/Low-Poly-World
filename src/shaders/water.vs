@@ -3,7 +3,7 @@
 const float PI = 3.1415926535897932384626433832795;
 
 const float waveLength = 4.0;
-const float waveAmplitude = 2;
+const float waveAmplitude = 1.5;
 const float specularReflectivity = 0.4;
 const float shineDamper = 20.0;
 

@@ -15,16 +15,16 @@ class TerrainGenerator {
 private:
 	NoiseGenerator* snow;
 	ColorGenerator* snow_color;
-	
+
 	float** height_map;
 	color** color_map;
 
 	ColorGenerator* stone_color;
 	NoiseGenerator* stone;
-	
+
 	ColorGenerator* sand_color;
 	NoiseGenerator* sand;
-	
+
 	ColorGenerator* plain_color;
 	AquNoise* plain;
 
@@ -40,11 +40,11 @@ public:
 		snow = new NoiseGenerator(ROUGHNESS, OCTAVES + 2, AMPLITUDE2);
 		snow_color = new ColorGenerator(COLOR_ARR_LEN5, COLOR_ARR5, AMPLITUDE2);
 
-		sand = new NoiseGenerator(ROUGHNESS / 2, OCTAVES + 2, AMPLITUDE2);
+		sand = new NoiseGenerator(ROUGHNESS / 5, OCTAVES + 2, AMPLITUDE2);
 		sand_color = new ColorGenerator(COLOR_ARR_LEN4, COLOR_ARR4, AMPLITUDE2);
 
 		plain = new AquNoise();
-		plain_color = new ColorGenerator(COLOR_ARR_LEN6, COLOR_ARR6, AMPLITUDE1);
+		plain_color = new ColorGenerator(COLOR_ARR_LEN2, COLOR_ARR2, AMPLITUDE3);
 
 		color** tmp_color_map = new color * [MAP_SIZE + 1];
 		for (int z = 0; z < MAP_SIZE + 1; ++z)
@@ -142,15 +142,15 @@ public:
 			}
 		}
 
-
-		for (int z = 1; z < MAP_SIZE / 4; z++)
+		int exLength = MAP_SIZE / 4;
+		for (int z = 1; z < exLength / 2; z++)
 		{
 			for (int x = 0; x < MAP_SIZE / 2; ++x)
 			{
-				double pos = part_height_map[0][MAP_SIZE / 2 - z][x] * (double(z) * 2 / MAP_SIZE + 0.5) + part_height_map[1][MAP_SIZE / 2 - z][x] * (double(-z) * 2 / MAP_SIZE + 0.5);
-				double neg = part_height_map[0][MAP_SIZE / 2 + z][x] * (double(-z) * 2 / MAP_SIZE + 0.5) + part_height_map[1][MAP_SIZE / 2 + z][x] * (double(z) * 2 / MAP_SIZE + 0.5);
-				glm::vec3 pos_c = part_color_map[0][MAP_SIZE / 2 - z][x] * (float)(double(z) * 2 / MAP_SIZE + 0.5) + part_color_map[1][MAP_SIZE / 2 - z][x] * (float)(double(-z) * 2 / MAP_SIZE + 0.5);
-				glm::vec3 neg_c = part_color_map[0][MAP_SIZE / 2 + z][x] * (float)(double(-z) * 2 / MAP_SIZE + 0.5) + part_color_map[1][MAP_SIZE / 2 + z][x] * (float)(double(z) * 2 / MAP_SIZE + 0.5);
+				double pos = part_height_map[0][MAP_SIZE / 2 - z][x] * (double(z) / exLength + 0.5) + part_height_map[1][MAP_SIZE / 2 - z][x] * (double(-z) / exLength + 0.5);
+				double neg = part_height_map[0][MAP_SIZE / 2 + z][x] * (double(-z) / exLength + 0.5) + part_height_map[1][MAP_SIZE / 2 + z][x] * (double(z) / exLength + 0.5);
+				glm::vec3 pos_c = part_color_map[0][MAP_SIZE / 2 - z][x] * (float)(double(z) / exLength + 0.5) + part_color_map[1][MAP_SIZE / 2 - z][x] * (float)(double(-z) / exLength + 0.5);
+				glm::vec3 neg_c = part_color_map[0][MAP_SIZE / 2 + z][x] * (float)(double(-z) / exLength + 0.5) + part_color_map[1][MAP_SIZE / 2 + z][x] * (float)(double(z) / exLength + 0.5);
 				height_map[MAP_SIZE / 2 - z][x] = pos;
 				height_map[MAP_SIZE / 2 + z][x] = neg;
 				color_map[MAP_SIZE / 2 - z][x] = pos_c;
@@ -158,10 +158,10 @@ public:
 			}
 			for (int x = MAP_SIZE / 2; x < MAP_SIZE + 1; ++x)
 			{
-				double pos = part_height_map[2][MAP_SIZE / 2 - z][x] * (double(z) * 2 / MAP_SIZE + 0.5) + part_height_map[3][MAP_SIZE / 2 - z][x] * (double(-z) * 2 / MAP_SIZE + 0.5);
-				double neg = part_height_map[2][MAP_SIZE / 2 + z][x] * (double(-z) * 2 / MAP_SIZE + 0.5) + part_height_map[3][MAP_SIZE / 2 + z][x] * (double(z) * 2 / MAP_SIZE + 0.5);
-				glm::vec3 pos_c = part_color_map[2][MAP_SIZE / 2 - z][x] * (float)(double(z) * 2 / MAP_SIZE + 0.5) + part_color_map[3][MAP_SIZE / 2 - z][x] * (float)(double(-z) * 2 / MAP_SIZE + 0.5);
-				glm::vec3 neg_c = part_color_map[2][MAP_SIZE / 2 + z][x] * (float)(double(-z) * 2 / MAP_SIZE + 0.5) + part_color_map[3][MAP_SIZE / 2 + z][x] * (float)(double(z) * 2 / MAP_SIZE + 0.5);
+				double pos = part_height_map[2][MAP_SIZE / 2 - z][x] * (double(z) / exLength + 0.5) + part_height_map[3][MAP_SIZE / 2 - z][x] * (double(-z) / exLength + 0.5);
+				double neg = part_height_map[2][MAP_SIZE / 2 + z][x] * (double(-z) / exLength + 0.5) + part_height_map[3][MAP_SIZE / 2 + z][x] * (double(z) / exLength + 0.5);
+				glm::vec3 pos_c = part_color_map[2][MAP_SIZE / 2 - z][x] * (float)(double(z) / exLength + 0.5) + part_color_map[3][MAP_SIZE / 2 - z][x] * (float)(double(-z) / exLength + 0.5);
+				glm::vec3 neg_c = part_color_map[2][MAP_SIZE / 2 + z][x] * (float)(double(-z) / exLength + 0.5) + part_color_map[3][MAP_SIZE / 2 + z][x] * (float)(double(z) / exLength + 0.5);
 				height_map[MAP_SIZE / 2 - z][x] = pos;
 				height_map[MAP_SIZE / 2 + z][x] = neg;
 				color_map[MAP_SIZE / 2 - z][x] = pos_c;
@@ -172,14 +172,14 @@ public:
 				color_map[MAP_SIZE / 2][x] = (color_map[MAP_SIZE / 2 + 1][x] + color_map[MAP_SIZE / 2 - 1][x]) / (float)2.0;
 		}
 
-		for (int x = 1; x < MAP_SIZE / 4; x++)
+		for (int x = 1; x < exLength / 2; x++)
 		{
 			for (int z = 0; z < MAP_SIZE / 2; ++z)
 			{
-				double pos = part_height_map[0][z][MAP_SIZE / 2 - x] * (double(x) * 2 / MAP_SIZE + 0.5) + part_height_map[2][z][MAP_SIZE / 2 - x] * (double(-x) * 2 / MAP_SIZE + 0.5);
-				double neg = part_height_map[0][z][MAP_SIZE / 2 + x] * (double(-x) * 2 / MAP_SIZE + 0.5) + part_height_map[2][z][MAP_SIZE / 2 + x] * (double(x) * 2 / MAP_SIZE + 0.5);
-				glm::vec3 pos_c = part_color_map[0][z][MAP_SIZE / 2 - x] * (float)(double(x) * 2 / MAP_SIZE + 0.5) + part_color_map[2][z][MAP_SIZE / 2 - x] * (float)(double(-x) * 2 / MAP_SIZE + 0.5);
-				glm::vec3 neg_c = part_color_map[0][z][MAP_SIZE / 2 + x] * (float)(double(-x) * 2 / MAP_SIZE + 0.5) + part_color_map[2][z][MAP_SIZE / 2 + x] * (float)(double(x) * 2 / MAP_SIZE + 0.5);
+				double pos = part_height_map[0][z][MAP_SIZE / 2 - x] * (double(x) / exLength + 0.5) + part_height_map[2][z][MAP_SIZE / 2 - x] * (double(-x) / exLength + 0.5);
+				double neg = part_height_map[0][z][MAP_SIZE / 2 + x] * (double(-x) / exLength + 0.5) + part_height_map[2][z][MAP_SIZE / 2 + x] * (double(x) / exLength + 0.5);
+				glm::vec3 pos_c = part_color_map[0][z][MAP_SIZE / 2 - x] * (float)(double(x) / exLength + 0.5) + part_color_map[2][z][MAP_SIZE / 2 - x] * (float)(double(-x) / exLength + 0.5);
+				glm::vec3 neg_c = part_color_map[0][z][MAP_SIZE / 2 + x] * (float)(double(-x) / exLength + 0.5) + part_color_map[2][z][MAP_SIZE / 2 + x] * (float)(double(x) / exLength + 0.5);
 				tmp_height_map[z][MAP_SIZE / 2 - x] = pos;
 				tmp_height_map[z][MAP_SIZE / 2 + x] = neg;
 				tmp_color_map[z][MAP_SIZE / 2 - x] = pos_c;
@@ -187,10 +187,10 @@ public:
 			}
 			for (int z = MAP_SIZE / 2; z < MAP_SIZE + 1; ++z)
 			{
-				double pos = part_height_map[1][z][MAP_SIZE / 2 - x] * (double(x) * 2 / MAP_SIZE + 0.5) + part_height_map[3][z][MAP_SIZE / 2 - x] * (double(-x) * 2 / MAP_SIZE + 0.5);
-				double neg = part_height_map[1][z][MAP_SIZE / 2 + x] * (double(-x) * 2 / MAP_SIZE + 0.5) + part_height_map[3][z][MAP_SIZE / 2 + x] * (double(x) * 2 / MAP_SIZE + 0.5);
-				glm::vec3 pos_c = part_color_map[1][z][MAP_SIZE / 2 - x] * (float)(double(x) * 2 / MAP_SIZE + 0.5) + part_color_map[3][z][MAP_SIZE / 2 - x] * (float)(double(-x) * 2 / MAP_SIZE + 0.5);
-				glm::vec3 neg_c = part_color_map[1][z][MAP_SIZE / 2 + x] * (float)(double(-x) * 2 / MAP_SIZE + 0.5) + part_color_map[3][z][MAP_SIZE / 2 + x] * (float)(double(x) * 2 / MAP_SIZE + 0.5);
+				double pos = part_height_map[1][z][MAP_SIZE / 2 - x] * (double(x) / exLength + 0.5) + part_height_map[3][z][MAP_SIZE / 2 - x] * (double(-x) / exLength + 0.5);
+				double neg = part_height_map[1][z][MAP_SIZE / 2 + x] * (double(-x) / exLength + 0.5) + part_height_map[3][z][MAP_SIZE / 2 + x] * (double(x) / exLength + 0.5);
+				glm::vec3 pos_c = part_color_map[1][z][MAP_SIZE / 2 - x] * (float)(double(x) / exLength + 0.5) + part_color_map[3][z][MAP_SIZE / 2 - x] * (float)(double(-x) / exLength + 0.5);
+				glm::vec3 neg_c = part_color_map[1][z][MAP_SIZE / 2 + x] * (float)(double(-x) / exLength + 0.5) + part_color_map[3][z][MAP_SIZE / 2 + x] * (float)(double(x) / exLength + 0.5);
 				tmp_height_map[z][MAP_SIZE / 2 - x] = pos;
 				tmp_height_map[z][MAP_SIZE / 2 + x] = neg;
 				tmp_color_map[z][MAP_SIZE / 2 - x] = pos_c;
@@ -209,14 +209,14 @@ public:
 				color_map[z][x] = (color_map[z][x] + tmp_color_map[z][x]) / (float)2.0;
 			}
 		}
-		for (int z = 1; z < MAP_SIZE / 4; z++)
+		for (int z = 1; z < exLength / 2; z++)
 		{
 			for (int x = 0; x < MAP_SIZE + 1; ++x)
 			{
-				double pos = height_map[MAP_SIZE / 2 - z][x] * (double(z) * 2 / MAP_SIZE + 0.5) + height_map[MAP_SIZE / 2 + z][x] * (double(-z) * 2 / MAP_SIZE + 0.5);
-				double neg = height_map[MAP_SIZE / 2 - z][x] * (double(-z) * 2 / MAP_SIZE + 0.5) + height_map[MAP_SIZE / 2 + z][x] * (double(z) * 2 / MAP_SIZE + 0.5);
-				glm::vec3 pos_c = color_map[MAP_SIZE / 2 - z][x] * (float)(double(z) * 2 / MAP_SIZE + 0.5) + color_map[MAP_SIZE / 2 + z][x] * (float)(double(-z) * 2 / MAP_SIZE + 0.5);
-				glm::vec3 neg_c = color_map[MAP_SIZE / 2 - z][x] * (float)(double(-z) * 2 / MAP_SIZE + 0.5) + color_map[MAP_SIZE / 2 + z][x] * (float)(double(z) * 2 / MAP_SIZE + 0.5);
+				double pos = height_map[MAP_SIZE / 2 - z][x] * (double(z) / exLength + 0.5) + height_map[MAP_SIZE / 2 + z][x] * (double(-z) / exLength + 0.5);
+				double neg = height_map[MAP_SIZE / 2 - z][x] * (double(-z) / exLength + 0.5) + height_map[MAP_SIZE / 2 + z][x] * (double(z) / exLength + 0.5);
+				glm::vec3 pos_c = color_map[MAP_SIZE / 2 - z][x] * (float)(double(z) / exLength + 0.5) + color_map[MAP_SIZE / 2 + z][x] * (float)(double(-z) / exLength + 0.5);
+				glm::vec3 neg_c = color_map[MAP_SIZE / 2 - z][x] * (float)(double(-z) / exLength + 0.5) + color_map[MAP_SIZE / 2 + z][x] * (float)(double(z) / exLength + 0.5);
 				height_map[MAP_SIZE / 2 - z][x] = pos;
 				height_map[MAP_SIZE / 2 + z][x] = neg;
 				color_map[MAP_SIZE / 2 - z][x] = pos_c;
@@ -226,14 +226,14 @@ public:
 				height_map[MAP_SIZE / 2][x] = (height_map[MAP_SIZE / 2 + 1][x] + height_map[MAP_SIZE / 2 - 1][x]) / 2.0,
 				color_map[MAP_SIZE / 2][x] = (color_map[MAP_SIZE / 2 + 1][x] + color_map[MAP_SIZE / 2 - 1][x]) / (float)2.0;
 		}
-		for (int x = 1; x < MAP_SIZE / 4; x++)
+		for (int x = 1; x < exLength / 2; x++)
 		{
 			for (int z = 0; z < MAP_SIZE + 1; ++z)
 			{
-				double pos = height_map[z][MAP_SIZE / 2 - x] * (double(x) * 2 / MAP_SIZE + 0.5) + height_map[z][MAP_SIZE / 2 + x] * (double(-x) * 2 / MAP_SIZE + 0.5);
-				double neg = height_map[z][MAP_SIZE / 2 - x] * (double(-x) * 2 / MAP_SIZE + 0.5) + height_map[z][MAP_SIZE / 2 + x] * (double(x) * 2 / MAP_SIZE + 0.5);
-				glm::vec3 pos_c = color_map[z][MAP_SIZE / 2 - x] * (float)(double(x) * 2 / MAP_SIZE + 0.5) + color_map[z][MAP_SIZE / 2 + x] * (float)(double(-x) * 2 / MAP_SIZE + 0.5);
-				glm::vec3 neg_c = color_map[z][MAP_SIZE / 2 - x] * (float)(double(-x) * 2 / MAP_SIZE + 0.5) + color_map[z][MAP_SIZE / 2 + x] * (float)(double(x) * 2 / MAP_SIZE + 0.5);
+				double pos = height_map[z][MAP_SIZE / 2 - x] * (double(x) / exLength + 0.5) + height_map[z][MAP_SIZE / 2 + x] * (double(-x) / exLength + 0.5);
+				double neg = height_map[z][MAP_SIZE / 2 - x] * (double(-x) / exLength + 0.5) + height_map[z][MAP_SIZE / 2 + x] * (double(x) / exLength + 0.5);
+				glm::vec3 pos_c = color_map[z][MAP_SIZE / 2 - x] * (float)(double(x) / exLength + 0.5) + color_map[z][MAP_SIZE / 2 + x] * (float)(double(-x) / exLength + 0.5);
+				glm::vec3 neg_c = color_map[z][MAP_SIZE / 2 - x] * (float)(double(-x) / exLength + 0.5) + color_map[z][MAP_SIZE / 2 + x] * (float)(double(x) / exLength + 0.5);
 				height_map[z][MAP_SIZE / 2 - x] = pos;
 				height_map[z][MAP_SIZE / 2 + x] = neg;
 				color_map[z][MAP_SIZE / 2 - x] = pos_c;
@@ -245,6 +245,7 @@ public:
 		}
 	}
 
+	float** get_height_map() { return height_map; }
 	/**
 	 * 生成一个Terrain类.
 	 */

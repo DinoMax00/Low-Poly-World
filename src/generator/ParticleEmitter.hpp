@@ -209,7 +209,7 @@ public:
 		
 		// std::cout << "ok" << std::endl;
 		updateParticles();
-		for (Particle particle : particles) {
+		for (Particle &particle : particles) {
 			if (particle.active) {
 				//std::cout << particle.position.x << " " << particle.position.y << " " << particle.position.z << std::endl;
 				glm::mat4 model = glm::mat4(1.0f);

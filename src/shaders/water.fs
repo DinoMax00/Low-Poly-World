@@ -1,6 +1,6 @@
 #version 330
 
-const vec3 waterColour = vec3(0.604, 0.867, 0.851);
+vec3 waterColour = vec3(199, 236, 238);// vec3(0.604, 0.867, 0.851);
 const float fresnelReflective = 0.5;
 const float edgeSoftness = 1;
 const float minBlueness = 0.4;
@@ -56,7 +56,7 @@ vec2 clipSpaceToTexCoords(vec4 clipSpace){
 }
 
 void main(void){
-
+	waterColour /= 255;
 	vec2 texCoordsReal = clipSpaceToTexCoords(pass_clipSpaceReal);
 	vec2 texCoordsGrid = clipSpaceToTexCoords(pass_clipSpaceGrid);
 	
