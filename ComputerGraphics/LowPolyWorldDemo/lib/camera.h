@@ -6,7 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <vector>
-
+#include "../config.h"
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
     FORWARD,
@@ -29,9 +29,9 @@ class Camera
 public:
     // camera Attributes
     glm::vec3 Position;
-    glm::vec3 Front;
-    glm::vec3 Up;
-    glm::vec3 Right;
+    glm::vec3 Front, rFront;
+    glm::vec3 Up, rUp;
+    glm::vec3 Right, rRight;
     glm::vec3 WorldUp;
     // euler Angles
     float Yaw;
@@ -40,6 +40,12 @@ public:
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
+    // ”√”⁄‰÷»æ∑¥…‰÷°ª∫≥Â
+    bool reflected = false;
+
+    void reflect() {
+        reflected = !reflected;
+    }
 
     // constructor with vectors
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
@@ -49,6 +55,7 @@ public:
         Yaw = yaw;
         Pitch = pitch;
         updateCameraVectors();
+        updateReflectionVectors();
     }
     // constructor with scalar values
     Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
@@ -58,11 +65,19 @@ public:
         Yaw = yaw;
         Pitch = pitch;
         updateCameraVectors();
+        updateReflectionVectors();
     }
 
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     glm::mat4 GetViewMatrix()
     {
+        glm::vec3 p = Position;
+        p.y = 2 * WATER_HEIGHT - p.y;
+
+        if (reflected) {
+            return glm::lookAt(p, p + rFront, rUp);
+        }
+
         return glm::lookAt(Position, Position + Front, Up);
     }
 
@@ -100,6 +115,7 @@ public:
 
         // update Front, Right and Up Vectors using the updated Euler angles
         updateCameraVectors();
+        updateReflectionVectors();
     }
 
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
@@ -125,6 +141,18 @@ private:
         // also re-calculate the Right and Up vector
         Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
         Up    = glm::normalize(glm::cross(Right, Front));
+    }
+
+    void updateReflectionVectors()
+    {
+        glm::vec3 front;
+        front.x = cos(glm::radians(Yaw)) * cos(glm::radians(-Pitch));
+        front.y = sin(glm::radians(-Pitch));
+        front.z = sin(glm::radians(Yaw)) * cos(glm::radians(-Pitch));
+        rFront = glm::normalize(front);
+        // also re-calculate the Right and Up vector
+        rRight = glm::normalize(glm::cross(rFront, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+        rUp = glm::normalize(glm::cross(Right, rFront));
     }
 };
 #endif

@@ -74,6 +74,27 @@
     <ClInclude Include="lib\model.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="generator\CloudGenerator.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="objects\Cloud.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="objects\Fbo.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="objects\Light.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\CloudRenderer.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\RenderEngine.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\ShadowRender.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\skybox.fs" />
@@ -84,9 +105,11 @@
     <None Include="shaders\test.vs" />
     <None Include="shaders\water.fs" />
     <None Include="shaders\water.vs" />
-    <None Include="shaders\modelWithoutTextureMap.fs_" />
-    <None Include="shaders\modelWithoutTextureMap.vs_" />
-    <None Include="shaders\modelWithTextureMap.fs_" />
-    <None Include="shaders\modelWithTextureMap.vs_" />
+    <None Include="shaders\model.fs_" />
+    <None Include="shaders\model.vs_" />
+    <None Include="shaders\cloudShader.fs" />
+    <None Include="shaders\cloudShader.vs" />
+    <None Include="shaders\shadowMappingDepth.fs_" />
+    <None Include="shaders\shadowMappingDepth.vs_" />
   </ItemGroup>
 </Project>
