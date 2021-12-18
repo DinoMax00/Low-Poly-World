@@ -71,7 +71,7 @@ private:
 	 * @brief 根据两颜色计算插值
 	 * @param cL,cR 两rgb值
 	 * @param lambda 调和系数
-	 * 
+	 *
 	 * @return 插值
 	 */
 	color interpolationColor(color cL, color cR, float lambda) {

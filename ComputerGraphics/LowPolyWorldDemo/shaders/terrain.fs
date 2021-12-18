@@ -1,45 +1,69 @@
-#version 330 core
-out vec4 FragColor;  
+#version 330
 
-flat in vec3 ourColor;
-flat in vec3 Normal;  
-in vec3 FragPos;  
-  
-//漫反射
-uniform vec3 lightPos; 
-uniform vec3 lightColor;
-uniform vec2 lightBias;
+flat in vec3 pass_colour;
 
-//镜面反射
-uniform vec3 viewPos;
+out vec4 out_colour;
 
-//simple diffuse lighting
-vec3 calculateLighting() {
-	vec3 normal = Normal * 2.0 - 1.0;//required just because of the format the normals were stored in (0 - 1)
-	float brightness = max(dot(-lightPos, normal), 0.0);
-	return (lightColor * lightBias.x) + (brightness * lightColor * lightBias.y);
+uniform bool useShadow;
+uniform sampler2D shadowMap;
+uniform mat4 lightSpaceMatrix;
+
+float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
+{
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // Transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    // Get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+    // Get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // Calculate bias (based on depth map resolution and slope)
+    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+    // Check whether current frag pos is in shadow
+    // float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+    // PCF
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+            shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
+        }    
+    }
+    shadow /= 9.0;
+    
+    // Keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
+    if(projCoords.z > 1.0)
+        shadow = 0.0;
+        
+    return shadow;
 }
 
-void main()
-{
-    // //以下部分为环境光照
-    // float ambientStrength = 0.2;
-    // vec3 ambient = ambientStrength * lightColor;
-  	
-    // //以下部分为漫反射
-    // vec3 norm = normalize(Normal);
-    // vec3 lightDir = normalize(lightPos - FragPos);
-    // float diff = max(dot(norm, lightDir), 0.0);
-    // vec3 diffuse = diff * lightColor;
+in vec3 FragPos;
+in vec3 Normal;
+in vec3 lDir;
+flat in vec3 amb;
+flat in vec3 dif;
+void main(void){
 
-    // //以下部分为镜面反射
-    // float specularStrength = 0.5;
-    // vec3 viewDir = normalize(viewPos - FragPos);
-    // vec3 reflectDir = reflect(-lightDir, norm); 
-    // float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    // vec3 specular = specularStrength * spec * lightColor;  
-            
-    // vec3 result = (ambient + diffuse + specular) * ourColor;
-    vec3 result = ourColor * calculateLighting();
-    FragColor = vec4(result, 1.0);
+	if (useShadow)
+	{
+		vec4 FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
+
+
+		vec3 normal = normalize(Normal);
+		vec3 lightDir = normalize(-lDir - FragPos);
+
+		float shadow = ShadowCalculation(FragPosLightSpace, normal, lightDir);                      
+		shadow = min(shadow, 0.75);
+		out_colour = vec4(amb + (1.0f - shadow) * dif, 1.0);
+	}
+	else
+	{
+		out_colour = vec4(pass_colour, 1.0);
+	}
+
 }

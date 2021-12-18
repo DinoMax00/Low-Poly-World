@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="config.h" />
     <ClInclude Include="generator\AquNoise.hpp" />
+    <ClInclude Include="generator\CloudGenerator.hpp" />
     <ClInclude Include="generator\ColourGenerator.hpp" />
     <ClInclude Include="generator\NoiseGenerator.hpp" />
     <ClInclude Include="generator\TerrainGenerator.hpp" />
@@ -158,17 +159,25 @@
     <ClInclude Include="lib\shader.h" />
     <ClInclude Include="lib\stb_image.h" />
     <ClInclude Include="LightType.h" />
+    <ClInclude Include="objects\Cloud.hpp" />
+    <ClInclude Include="objects\Fbo.hpp" />
     <ClInclude Include="objects\GridSquare.hpp" />
+    <ClInclude Include="objects\Light.hpp" />
+    <ClInclude Include="rendering\CloudRenderer.hpp" />
     <ClInclude Include="rendering\ModelRender.hpp" />
+    <ClInclude Include="rendering\RenderEngine.hpp" />
+    <ClInclude Include="rendering\ShadowRender.hpp" />
     <ClInclude Include="rendering\TerrainRender.hpp" />
     <ClInclude Include="rendering\WaterRender.hpp" />
     <ClInclude Include="Skybox\Skybox.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\modelWithoutTextureMap.fs_" />
-    <None Include="shaders\modelWithoutTextureMap.vs_" />
-    <None Include="shaders\modelWithTextureMap.fs_" />
-    <None Include="shaders\modelWithTextureMap.vs_" />
+    <None Include="shaders\cloudShader.fs" />
+    <None Include="shaders\cloudShader.vs" />
+    <None Include="shaders\model.fs_" />
+    <None Include="shaders\model.vs_" />
+    <None Include="shaders\shadowMappingDepth.fs_" />
+    <None Include="shaders\shadowMappingDepth.vs_" />
     <None Include="shaders\skybox.fs" />
     <None Include="shaders\skybox.vs" />
     <None Include="shaders\terrain.fs" />
