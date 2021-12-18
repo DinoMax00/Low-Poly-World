@@ -7,7 +7,8 @@
 #include "../lib/shader.h"
 #include "../lib/camera.h"
 #include "../config.h"
-#include <ctime>
+#include <random>
+#include <chrono>
 
 class CloudRenderer {
 private:
@@ -17,8 +18,7 @@ private:
 	std::vector<float> rotate; // 旋转角度
 	std::vector<glm::vec3> scale; // 缩放
 	glm::vec3 moveSpeed; // 云的运动方向
-
-	const float MOVE_SPEED_BASE = 0.003f;
+	const int _MAP_SIZE = MAP_SIZE * 3;
 
 public:
 	CloudRenderer() {
@@ -27,25 +27,40 @@ public:
 	};
 
 	CloudRenderer(std::vector<Cloud>* _clouds) {
+		std::mt19937 rng(std::chrono::system_clock::now().time_since_epoch().count());
 		cloudShader = new Shader("shaders/cloudShader.vs", "shaders/cloudShader.fs");
 		clouds = _clouds;
 		pos.resize(clouds->size());
 		rotate.resize(clouds->size());
 		scale.resize(clouds->size());
-		for (auto& i : pos) { // 设置各个云坐标
-			i.x = MAP_SIZE / 2 + (rand() * 2 - RAND_MAX) % ((int)MAP_SIZE / 2 - 5);
-			i.y = CLOUD_BASE_HEIGHT + (rand() * 2  - RAND_MAX) % 4;
-			i.z = MAP_SIZE / 2 + (rand() * 2 - RAND_MAX) % ((int)MAP_SIZE / 2 - 5);
+		for (int i = 0; i < pos.size(); i++) { // 设置各个云坐标
+			pos[i].y = CLOUD_BASE_HEIGHT + rng() % ((int)CLOUD_BASE_HEIGHT / 5);
+			if (i % 4 == 0) {
+				pos[i].x = 1.0 * _MAP_SIZE / 4 + rng() % (_MAP_SIZE / 4 - 5);
+				pos[i].z = 1.0 * _MAP_SIZE / 4 + rng() % (_MAP_SIZE / 4 - 5);
+			}
+			else if (i % 4 == 1) {
+				pos[i].x = 1.0 * _MAP_SIZE / 4 + rng() % (_MAP_SIZE / 4 - 5);
+				pos[i].z = 3.0 * _MAP_SIZE / 4 + rng() % (_MAP_SIZE / 4 - 5);
+			}
+			else if (i % 4 == 2) {
+				pos[i].x = 3.0 * _MAP_SIZE / 4 + rng() % (_MAP_SIZE / 4 - 5);
+				pos[i].z = 1.0 * _MAP_SIZE / 4 + rng() % (_MAP_SIZE / 4 - 5);
+			}
+			else{
+				pos[i].x = 3.0 * _MAP_SIZE / 4 + rng() % (_MAP_SIZE / 4 - 5);
+				pos[i].z = 3.0 * _MAP_SIZE / 4 + rng() % (_MAP_SIZE / 4 - 5);
+			}
 		}
-		for (auto& i : rotate)i = rand(); // 设置旋转角度
+		for (auto& i : rotate)i = -60.0 + 120.0 * rng() / std::mt19937::max(); // 设置旋转角度
 		for (auto& i : scale) {
-			float tmp = CLOUD_SCALE + CLOUD_SCALE * 0.5 * rand() / RAND_MAX; // 设置 scale
-			i.x = tmp * (1.0 + 0.5 * rand() / RAND_MAX);
-			i.y = tmp * (0.5 + 0.5 * rand() / RAND_MAX);
-			i.z = tmp * (0.8 + 0.15 * rand() / RAND_MAX);
+			float tmp = CLOUD_SCALE + CLOUD_SCALE * 0.5 * rng() / std::mt19937::max(); // 设置 scale
+			i.x = tmp * (1.0 + 0.5 * rng() / std::mt19937::max());
+			i.y = tmp * (0.5 + 0.5 * rng() / std::mt19937::max());
+			i.z = tmp * (0.8 + 0.15 * rng() / std::mt19937::max());
 		}
-		moveSpeed = glm::vec3(-MOVE_SPEED_BASE + MOVE_SPEED_BASE * 2 * rand() / RAND_MAX, 
-							0.0f, -MOVE_SPEED_BASE + MOVE_SPEED_BASE * 2 * rand() / RAND_MAX); // 设置云的运动方向
+		moveSpeed = glm::vec3(-MOVE_SPEED_BASE + MOVE_SPEED_BASE * 2 * rng() / std::mt19937::max(),
+							0.0f, -MOVE_SPEED_BASE + MOVE_SPEED_BASE * 2 * rng() / std::mt19937::max()); // 设置云的运动方向
 		// 防止速度过小
 		if (moveSpeed.x < 0) moveSpeed.x = std::min(moveSpeed.x, -1.0f * MOVE_SPEED_BASE / 2);
 		if (moveSpeed.x > 0) moveSpeed.x = std::max(moveSpeed.x, 1.0f * MOVE_SPEED_BASE / 2);
@@ -81,15 +96,17 @@ public:
 			Cloud cloud = (*clouds)[i];
 			glm::mat4 model = glm::mat4(1.0f);
 			pos[i] += moveSpeed / scale[i] * glm::vec3(pos[i].y * pos[i].y / 400); // 根据云的大小 高度设置速度
-			if (pos[i].x < 0) pos[i].x += MAP_SIZE;
-			else if (pos[i].x > MAP_SIZE) pos[i].x -= MAP_SIZE;
+			if (pos[i].x < 0) pos[i].x += _MAP_SIZE;
+			else if (pos[i].x > _MAP_SIZE) pos[i].x -= _MAP_SIZE;
 
-			if (pos[i].z < 0) pos[i].z += MAP_SIZE;
-			else if (pos[i].z > MAP_SIZE) pos[i].z -= MAP_SIZE;
+			if (pos[i].z < 0) pos[i].z += _MAP_SIZE;
+			else if (pos[i].z > _MAP_SIZE) pos[i].z -= _MAP_SIZE;
 
+			// std::cout << pos[i].x << " " << pos[i].y << " " << pos[i].z << std::endl;
 			model = glm::translate(model, pos[i]);
-			model = glm::scale(model, scale[i]);// make sure to initialize matrix to identity matrix first
 			model = glm::rotate(model, glm::radians(rotate[i]), glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, scale[i]);
+			
 				
 			cloudShader->setMat4("model", model);
 			for (int i = 0; i < Cloud::SPHERE_COUNT; i++) {

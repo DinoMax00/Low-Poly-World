@@ -26,9 +26,11 @@ constexpr float REFRACT_OFFSET = 1.0f;
 constexpr float REFLECT_OFFSET = 0.1f;
 
 /// 云相关
-constexpr float CLOUD_SCALE = (float)MAP_SIZE / 50.0; // 用于调整大小
-constexpr float CLOUD_BASE_HEIGHT = AMPLITUDE1 + (float)MAP_SIZE / 100.0; // 基础高度 会在高度上下偏置
-constexpr int SEGMENT_COUNT = 15;
+constexpr int CLOUD_BASE_COUNT = 8; // 基本数目
+constexpr float MOVE_SPEED_BASE = 0.050f; // 移动速度
+constexpr float CLOUD_SCALE = (float)MAP_SIZE / 10.0; // 用于调整大小
+constexpr float CLOUD_BASE_HEIGHT = AMPLITUDE2 * MAP_SIZE / 60.0; // 基础高度 会在高度上下偏置
+constexpr int SEGMENT_COUNT = 20;
 constexpr float PI = 3.14159265358979323846f;
 
 /// 光照相关

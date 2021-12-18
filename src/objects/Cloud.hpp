@@ -100,7 +100,7 @@ public:
 		glBindVertexArray(this->cloudVAOs[idx]);
 		glBindBuffer(GL_ARRAY_BUFFER, this->cloudVBOs[idx]);
 		glBufferData(GL_ARRAY_BUFFER, this->spherefaces[idx].size() * sizeof(glm::vec3),
-			&this->spherefaces[idx][0], GL_STATIC_DRAW);
+			&this->spherefaces[idx][0], GL_DYNAMIC_DRAW);
 
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(glm::vec3), (void*)0);
 		glEnableVertexAttribArray(0);

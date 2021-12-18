@@ -13,6 +13,7 @@
 #include "CloudRenderer.hpp"
 #include "TerrainRender.hpp"
 #include "WaterRender.hpp"
+#include "ParticleRenderer.hpp"
 
 static Camera* camera = new Camera(glm::vec3(50.0f, 10.0f, 50.0f));
 static float lastX = WINDOW_W / 2.0f;
@@ -108,7 +109,7 @@ public:
 	 * \param water
 	 * \param light
 	 */
-	void renderObjs(TerrainRender* terrain, WaterRender* water, Skybox* skybox, CloudRenderer* cloud, Light* light) {
+	void renderObjs(TerrainRender* terrain, WaterRender* water, ParticleRenderer* particles, Skybox* skybox, CloudRenderer* cloud, Light* light) {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -126,6 +127,7 @@ public:
 			refraction_fbo->getColorBuffer(),
 			refraction_fbo->getDepthBuffer()
 		);
+		particles->render(camera, light->get_direction(), light->get_color());
 		cloud->render(camera, light->get_direction(), light->get_color());
 	}
 
