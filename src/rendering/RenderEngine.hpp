@@ -29,7 +29,7 @@ void processInput(GLFWwindow* window);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-
+static BoneAnimation* little_people;
 /**
  * 处理gl初始化以及所有渲染事件.
  */
@@ -39,7 +39,7 @@ private:
 	Fbo* reflection_fbo = 0; // 反射
 	Fbo* refraction_fbo = 0; // 折射
 
-	BoneAnimation* little_people;
+	
 	float** height_map;
 
 public:
@@ -214,7 +214,8 @@ void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE)
+		camera->free_view = little_people->isstop = false;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera->ProcessKeyboard(FORWARD, 20 * deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -223,6 +224,9 @@ void processInput(GLFWwindow* window)
 		camera->ProcessKeyboard(LEFT, 20 * deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera->ProcessKeyboard(RIGHT, 20 * deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		camera->free_view = little_people->isstop =  true;
+	
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)

@@ -43,6 +43,8 @@ public:
     float Zoom;
     // 用于渲染反射帧缓冲
     bool reflected = false;
+    // 自由视角控制
+    bool free_view = false;
 
     void reflect() {
         reflected = !reflected;
@@ -86,6 +88,20 @@ public:
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
     void ProcessKeyboard(Camera_Movement direction, float deltaTime)
     {
+        if (free_view) {
+            float velocity = MovementSpeed * deltaTime;
+            if (direction == FORWARD)
+                Position += Front * velocity;
+            if (direction == BACKWARD)
+                Position -= Front * velocity;
+            if (direction == LEFT)
+                Position -= Right * velocity;
+            if (direction == RIGHT)
+                Position += Right * velocity;
+            updateCameraVectors();
+            updateReflectionVectors();
+            return;
+        }
         float velocity = MovementSpeed * deltaTime;
         if (direction == FORWARD)
             ModelPosition += Front * velocity;
@@ -145,6 +161,9 @@ private:
         // also re-calculate the Right and Up vector
         Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
         Up    = glm::normalize(glm::cross(Right, Front));
+
+        if (free_view) return;
+
         Position.x = ModelPosition.x - Front.x * LOOK_DIS;
         Position.y = ModelPosition.y - Front.y * LOOK_DIS + 1;
         Position.z = ModelPosition.z - Front.z * LOOK_DIS;

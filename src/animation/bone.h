@@ -542,6 +542,7 @@ public:
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
 	}
+	bool isstop;
 private:
 	const char* filePath;
 	const char* texturepath;
@@ -572,7 +573,7 @@ private:
 	uint modelMatrixLocation;
 	uint boneMatricesLocation;
 	uint textureLocation;
-	bool isstop;
+	
 };
 
 
