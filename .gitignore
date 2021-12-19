@@ -1,0 +1,12 @@
+*.sln
+src/.vs
+src/x64
+src/Debug
+*.db
+*.user
+*.filters
+*.vcxproj
+*.opendb
+*.db-wal
+*.db-shm
+src/test.out
