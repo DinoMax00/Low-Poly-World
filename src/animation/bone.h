@@ -437,8 +437,8 @@ public:
 		// initialize projection view and model matrix
 		this->projectionMatrix = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, NEAR_PLANE, FAR_PLANE);
 
-		//std::cout << camera.ModelPosition.x << ' ' << camera.ModelPosition.y << ' ' << camera.ModelPosition.z;
-		//std::cout <<' ' << camera.Position.x << ' ' << camera.Position.y << ' ' << camera.Position.z << ' ' << std::endl;
+		/*std::cout << camera.ModelPosition.x << ' ' << camera.ModelPosition.y << ' ' << camera.ModelPosition.z << std::endl;
+		std::cout <<"= = = " << camera.Position.x << ' ' << camera.Position.y << ' ' << camera.Position.z << ' ' << std::endl;*/
 		camera.ModelPosition.y = height;
 		this->modelPosition = camera.ModelPosition;
 		//this->modelPosition.x *= 3;
@@ -451,14 +451,13 @@ public:
 		this->modelMatrix = glm::translate(this->modelMatrix, this->modelPosition);
 
 		//变大模型
-		this->modelMatrix = glm::scale(this->modelMatrix, glm::vec3(0.6f, 0.6f, 0.6f));
+		this->modelMatrix = glm::scale(this->modelMatrix, (float)2 * glm::vec3(0.6f, 0.6f, 0.6f));
 		//向上轴混乱很常见。
 		this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(180.0f), glm::vec3(1, 0, 0));
 		glm::vec3 stddirection(0.0f, 0.0f, 1.0f);
 		glm::vec3 xzdirection(camera.Front.x, 0.0f, camera.Front.z);
 		float tmp_angle = acos(glm::dot(stddirection, xzdirection) / sqrt(xzdirection.x * xzdirection.x + xzdirection.z * xzdirection.z));
 		if (camera.Front.x > 0) tmp_angle = 4 * acos(0.0f) - tmp_angle;
-		// std::cout << tmp_angle << ' ' << glm::radians(90.0f) << std::endl;
 
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 			this->angle = tmp_angle + glm::radians(0.0f), this->isstop = 0;
@@ -470,6 +469,7 @@ public:
 			this->angle = tmp_angle + glm::radians(-90.0f), this->isstop = 0;
 		else
 			this->isstop = 1;
+		if (camera.free_view) this->isstop = 1;
 		this->modelMatrix = glm::rotate(this->modelMatrix, this->angle, glm::vec3(0, 1, 0));
 	}
 	void initial(Shader& shader, Camera& camera, GLFWwindow* window)
@@ -497,7 +497,6 @@ public:
 
 		this->vao = createVertexArray(this->vertices, this->indices);
 		this->diffuseTexture = createTexture(texturepath);
-		// diffuseTexture = createTexture("man/boss_lan.jpg");
 
 		this->identity = glm::mat4(1.0);
 
@@ -519,6 +518,7 @@ public:
 	}
 	void show(Shader& shader, Camera& camera, glm::vec3 lightPos, GLFWwindow* window, float height)
 	{
+		if (camera.free_view) return;
 		float elapsedTime = (float)glfwGetTime() * 10;
 
 		elapsedTime = (int)elapsedTime % 850;
@@ -538,7 +538,6 @@ public:
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, diffuseTexture);
 		glUniform1i(textureLocation, 0);
-		// std::cout << textureLocation << ' ' << diffuseTexture << ' ' << texturepath << "\n";
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
 	}

@@ -13,6 +13,6 @@ void main()
 {
 	vec3 lightDir = normalize(lightPos);
 	float diff = max(dot(v_normal, lightDir), 0.6);
-	vec3 dCol = diff * texture(diff_texture, tex_cord).rgb; 
+	vec3 dCol = 0.8 * texture(diff_texture, tex_cord).rgb; 
 	color = vec4(dCol, 1);
 }

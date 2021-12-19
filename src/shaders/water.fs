@@ -15,6 +15,7 @@ in vec3 pass_normal;
 in vec3 pass_toCameraVector;
 in vec3 pass_specular;
 in vec3 pass_diffuse;
+in float mode;
 
 uniform sampler2D reflectionTexture;
 uniform sampler2D refractionTexture;
@@ -56,7 +57,10 @@ vec2 clipSpaceToTexCoords(vec4 clipSpace){
 }
 
 void main(void){
-	waterColour /= 255;
+	if (mode < 2) {
+		waterColour = mix(waterColour / 255, vec3(45, 152, 218) / 255, 1 - mode);
+	}
+	else waterColour /= 255;
 	vec2 texCoordsReal = clipSpaceToTexCoords(pass_clipSpaceReal);
 	vec2 texCoordsGrid = clipSpaceToTexCoords(pass_clipSpaceGrid);
 	
@@ -72,11 +76,15 @@ void main(void){
 	reflectColour = mix(reflectColour, waterColour, minBlueness);
 	
 	vec3 finalColour = mix(reflectColour, refractColour, calculateFresnel());
+	if (mode < 2) {
+		finalColour = mix(reflectColour, refractColour, 0.2);
+	}
 	finalColour = finalColour;//* pass_diffuse + pass_specular;
 	
 	out_colour = vec4(finalColour, 1.0);
 	
 	//apply soft edges
 	out_colour.a = clamp(waterDepth / edgeSoftness, 0.0, 1.0);
+	if (mode < 0) out_colour = vec4(finalColour, 0.0);
 
 }

@@ -142,8 +142,9 @@ public:
 		camera->ModelPosition.x = std::max(camera->ModelPosition.x, (float)0);
 		camera->ModelPosition.z = std::min(camera->ModelPosition.z, (float)MAP_SIZE * 3 - 5);
 		camera->ModelPosition.z = std::max(camera->ModelPosition.z, (float)0);
+
 		Shader bone_shader("shaders/bone.vs", "shaders/bone.fs");
-		
+
 		little_people->show(bone_shader, *camera, light->get_direction(), window, get_height(camera->ModelPosition.x, camera->ModelPosition.z));
 
 		particles->render(camera, light->get_direction(), light->get_color());
@@ -215,7 +216,7 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE)
-		camera->free_view = little_people->isstop = false;
+		camera->free_view = false;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera->ProcessKeyboard(FORWARD, 20 * deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -225,7 +226,7 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera->ProcessKeyboard(RIGHT, 20 * deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		camera->free_view = little_people->isstop =  true;
+		camera->free_view = true;
 	
 }
 
