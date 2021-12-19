@@ -70,8 +70,7 @@ void main(void){
 	
 	if (currentVertex.x <= 180 && currentVertex.z <= 180) {
 		mode = max(currentVertex.x / 180, currentVertex.z / 180);
-		mode = 1.0
-		waveAmplitude = 0;
+		waveAmplitude *= mode * mode * mode;
 	}
 	if (currentVertex.x >= 230 && currentVertex.z >=230) {
 		mode = -1;
