@@ -37,13 +37,13 @@ flat out vec3 dif;
 
 void main(void){
 
-	vec4 worldPosition = vec4(in_position, 1.0);
+	vec4 worldPosition = vec4(3.0f * in_position, 1.0);
 	gl_ClipDistance[0] = dot(worldPosition, plane);
 	gl_Position = projectionViewMatrix * worldPosition;
 	
 	vec3 lighting = calculateLighting();
 
-	FragPos = vec3(mat4(1.0f) * vec4(in_position, 1.0));
+	FragPos = vec3(mat4(1.0f) * vec4(3.0f * in_position, 1.0));
 	Normal = transpose(inverse(mat3(mat4(1.0f)))) * in_normal.xyz;
 	lDir = lightDirection * 100.0f;
 

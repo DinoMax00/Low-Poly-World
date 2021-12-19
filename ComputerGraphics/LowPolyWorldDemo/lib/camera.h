@@ -28,6 +28,7 @@ class Camera
 {
 public:
     // camera Attributes
+    glm::vec3 ModelPosition;
     glm::vec3 Position;
     glm::vec3 Front, rFront;
     glm::vec3 Up, rUp;
@@ -42,6 +43,8 @@ public:
     float Zoom;
     // 用于渲染反射帧缓冲
     bool reflected = false;
+    // 自由视角控制
+    bool free_view = false;
 
     void reflect() {
         reflected = !reflected;
@@ -50,7 +53,9 @@ public:
     // constructor with vectors
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
     {
-        Position = position;
+        ModelPosition.x = position.x * 3;
+        ModelPosition.y = position.y * 3;
+        ModelPosition.z = position.z * 3;
         WorldUp = up;
         Yaw = yaw;
         Pitch = pitch;
@@ -60,7 +65,7 @@ public:
     // constructor with scalar values
     Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
     {
-        Position = glm::vec3(posX, posY, posZ);
+        ModelPosition = glm::vec3(posX * 3, posY * 3, posZ * 3);
         WorldUp = glm::vec3(upX, upY, upZ);
         Yaw = yaw;
         Pitch = pitch;
@@ -73,7 +78,6 @@ public:
     {
         glm::vec3 p = Position;
         p.y = 2 * WATER_HEIGHT - p.y;
-
         if (reflected) {
             return glm::lookAt(p, p + rFront, rUp);
         }
@@ -84,15 +88,31 @@ public:
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
     void ProcessKeyboard(Camera_Movement direction, float deltaTime)
     {
+        if (free_view) {
+            float velocity = MovementSpeed * deltaTime;
+            if (direction == FORWARD)
+                Position += Front * velocity;
+            if (direction == BACKWARD)
+                Position -= Front * velocity;
+            if (direction == LEFT)
+                Position -= Right * velocity;
+            if (direction == RIGHT)
+                Position += Right * velocity;
+            updateCameraVectors();
+            updateReflectionVectors();
+            return;
+        }
         float velocity = MovementSpeed * deltaTime;
         if (direction == FORWARD)
-            Position += Front * velocity;
+            ModelPosition += Front * velocity;
         if (direction == BACKWARD)
-            Position -= Front * velocity;
+            ModelPosition -= Front * velocity;
         if (direction == LEFT)
-            Position -= Right * velocity;
+            ModelPosition -= Right * velocity;
         if (direction == RIGHT)
-            Position += Right * velocity;
+            ModelPosition += Right * velocity;
+        updateCameraVectors();
+        updateReflectionVectors();
     }
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
@@ -121,7 +141,7 @@ public:
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void ProcessMouseScroll(float yoffset)
     {
-        Zoom -= (float)yoffset;
+        Zoom -= (float)yoffset * 1.5f;
         if (Zoom < 1.0f)
             Zoom = 1.0f;
         if (Zoom > 45.0f)
@@ -141,6 +161,12 @@ private:
         // also re-calculate the Right and Up vector
         Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
         Up    = glm::normalize(glm::cross(Right, Front));
+
+        if (free_view) return;
+
+        Position.x = ModelPosition.x - Front.x * LOOK_DIS;
+        Position.y = ModelPosition.y - Front.y * LOOK_DIS + 1;
+        Position.z = ModelPosition.z - Front.z * LOOK_DIS;
     }
 
     void updateReflectionVectors()

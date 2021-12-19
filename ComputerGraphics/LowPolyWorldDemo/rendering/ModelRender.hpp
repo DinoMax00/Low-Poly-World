@@ -16,7 +16,7 @@
 const char* MODEL_SHADER_VS_PATH = "shaders/model.vs_";
 const char* MODEL_SHADER_FS_PATH = "shaders/model.fs_";
 //加载模型数量，添加模型时该值加一
-const int MODEL_NUM = 8;
+const int MODEL_NUM = 13;
 //模型文件路径，添加模型时在末尾加入新模型路径
 const string MODEL_SOURCE_PATH[] =
 {
@@ -27,7 +27,12 @@ const string MODEL_SOURCE_PATH[] =
 	"../ModelResource/tree4/LowPoly_Tree_v1.obj",
 	"../ModelResource/white_tailed_deer/12961_White-Tailed_Deer_v1_l2.obj",
 	"../ModelResource/dog1/big_shiba_inu_dog_low_poly.obj",
-	"../ModelResource/horse1/horse1.OBJ"
+	"../ModelResource/horse1/horse1.OBJ",
+	"../ModelResource/tree5/Lowpoly_tree_sample.obj",
+	"../ModelResource/tree6/Death_Tree_6.fbx",
+	"../ModelResource/tree7/Ipe.obj",
+	"../ModelResource/tree8/Palmera.obj",
+	"../ModelResource/tree9/arvore_cerrado_002.obj"
 };
 //模型索引，下划线后缀_0表示无贴图，_1表示有贴图，添加模型时按类似格式在末尾加入枚举变量
 enum class ModelIndex
@@ -39,11 +44,16 @@ enum class ModelIndex
 	TREE4_0,
 	WHITE_TAILED_DEER_1,
 	DOG1_0,
-	HORSE1_0
+	HORSE1_0,
+	TREE5_0,
+	TREE6_0,
+	TREE7_0,
+	TREE8_0,
+	TREE9_0
 };
 //便于快速判断渲染当前模型有无贴图，以设置着色器，添加模型时也要在末尾加上新值，同样0无贴图1有贴图，即
 //上面枚举变量的后缀
-const bool SHADER_TYPE_OF_MODEL[] = { 0,1,0,1,0,1,0,0 };
+const bool SHADER_TYPE_OF_MODEL[] = { 0,1,0,1,0,1,0,0,0,0,0,0,0 };
 
 class ModelPosition
 {
@@ -81,87 +91,6 @@ protected:
 	GLuint testPlaneVAO;
 	GLuint testPlaneUBI;
 
-public:
-	friend class ShadowMapRender;
-	ModelRender()
-	{
-		//加载着色器程序
-		this->modelShader = new Shader(MODEL_SHADER_VS_PATH, MODEL_SHADER_FS_PATH);
-		//加载所有模型文件
-		for (auto i = 0; i < MODEL_NUM; i++)
-		{
-			Model* temp = new Model(MODEL_SOURCE_PATH[i]);
-			this->models.push_back(temp);
-		}
-		//加个默认光照
-		this->dl.ambient = LIGHT_BIAS.x * LIGHT_COLOR;
-		this->dl.diffuse = LIGHT_BIAS.x * LIGHT_COLOR;
-		this->dl.specular = LIGHT_BIAS.x * LIGHT_COLOR;
-		this->dl.direction = LIGHT_DIRECTION;
-		//用方向光设置阴影时需假定一个光源位置，这里使用-this->dl.direction，
-		//因此要拉高光源位置，原方向向量乘100倍，其他光照计算时会将方向向量规范化，
-		//因此不受影响
-		this->dl.direction *= LIGHT_DIR_TO_POS_RATIO;
-		//为着色器程序设置初始光照
-		this->setDirLight(this->dl);
-		this->setPointLight(this->pl);
-		this->setSpotLight(this->sl);
-		//生成测试平面
-		this->genTestPlane();
-		//初始化modelPos变量，选择出所有要画的模型，并确定这些模型相应的在地图中的
-		//位置、大小、朝向信息
-		this->initModelPosition();
-	}
-	void initModelPosition()
-	{
-		glm::mat4 model;
-		ModelPosition tempMP;
-
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(30.0f, 0.0f, 30.0f));
-		model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
-		tempMP = ModelPosition(ModelIndex::TREE1_MAPLE_TREE_0, model);
-		this->modelPos.push_back(tempMP);
-
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(20.0f, 5.0f, 20.0f));
-		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-		tempMP = ModelPosition(ModelIndex::TREE2_0, model);
-		this->modelPos.push_back(tempMP);
-
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(50.0f, -5.0f, 50.0f));
-		model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
-		tempMP = ModelPosition(ModelIndex::TREE3_1, model);
-		this->modelPos.push_back(tempMP);
-
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(80.0f, 0.0f, 80.0f));
-		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		tempMP = ModelPosition(ModelIndex::TREE4_0, model);
-		this->modelPos.push_back(tempMP);
-
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(100.0f, 0.0f, 100.0f));
-		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		tempMP = ModelPosition(ModelIndex::WHITE_TAILED_DEER_1, model);
-		this->modelPos.push_back(tempMP);
-
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(15.0f, 0.0f, 15.0f));
-		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		tempMP = ModelPosition(ModelIndex::DOG1_0, model);
-		this->modelPos.push_back(tempMP);
-
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(60.0f, 40.0f, 60.0f));
-		model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
-		tempMP = ModelPosition(ModelIndex::HORSE1_0, model);
-		this->modelPos.push_back(tempMP);
-	}
 	void genTestPlane()
 	{
 		float planeVertices[] =
@@ -202,6 +131,73 @@ public:
 		glBufferData(GL_UNIFORM_BUFFER, sizeof(groundm), (void*)(&groundm), GL_STATIC_DRAW);
 
 		glBindVertexArray(0);
+	}
+	void initModelPosition()
+	{
+		this->addModelPosition(ModelIndex::TREE1_MAPLE_TREE_0, 30.0f, 10.0f, 30.0f, 0.3f);
+		this->addModelPosition(ModelIndex::TREE2_0, 20.0f, 10.0f, 20.0f, 0.1f);
+		this->addModelPosition(ModelIndex::TREE3_1, 50.0f, 10.0f, 50.0f, 4.0f);
+		this->addModelPosition(ModelIndex::TREE4_0, 80.0f, 10.0f, 80.0f, 0.2f, -90.0f, AXIS_X);
+		this->addModelPosition(ModelIndex::WHITE_TAILED_DEER_1, 100.0f, 10.0f, 100.0f, 0.4f, -90.0f, AXIS_X);
+		this->addModelPosition(ModelIndex::DOG1_0, 15.0f, 10.0f, 15.0f, 0.4f, -90.0f, AXIS_X);
+		this->addModelPosition(ModelIndex::HORSE1_0, 60.0f, 40.0f, 60.0f, 0.01f);
+		this->addModelPosition(ModelIndex::TREE5_0, 30.0f, 20.0f, 30.0f, 3.0f);
+		this->addModelPosition(ModelIndex::TREE6_0, 30.0f, 30.0f, 30.0f, 3.0f);
+		this->addModelPosition(ModelIndex::TREE7_0, 30.0f, 40.0f, 30.0f, 3.0f);
+		this->addModelPosition(ModelIndex::TREE8_0, 30.0f, 50.0f, 30.0f, 3.0f);
+		this->addModelPosition(ModelIndex::TREE9_0, 30.0f, 60.0f, 30.0f, 3.0f);
+	}
+
+public:
+	friend class ShadowMapRender;
+	ModelRender()
+	{
+		//加载着色器程序
+		this->modelShader = new Shader(MODEL_SHADER_VS_PATH, MODEL_SHADER_FS_PATH);
+		//加载所有模型文件
+		for (auto i = 0; i < MODEL_NUM; i++)
+		{
+			Model* temp = new Model(MODEL_SOURCE_PATH[i]);
+			this->models.push_back(temp);
+		}
+		//加个默认光照
+		this->dl.ambient = LIGHT_BIAS.x * LIGHT_COLOR;
+		this->dl.diffuse = LIGHT_BIAS.x * LIGHT_COLOR;
+		this->dl.specular = LIGHT_BIAS.x * LIGHT_COLOR;
+		this->dl.direction = LIGHT_DIRECTION;
+		//用方向光设置阴影时需假定一个光源位置，这里使用-this->dl.direction，
+		//因此要拉高光源位置，原方向向量乘100倍，其他光照计算时会将方向向量规范化，
+		//因此不受影响
+		this->dl.direction *= LIGHT_DIR_TO_POS_RATIO;
+		//为着色器程序设置初始光照
+		this->setDirLight(this->dl);
+		this->setPointLight(this->pl);
+		this->setSpotLight(this->sl);
+		//生成测试平面
+		this->genTestPlane();
+		//初始化modelPos变量，选择出所有要画的模型，并确定这些模型相应的在地图中的
+		//位置、大小、朝向信息
+		this->initModelPosition();
+	}
+	//将索引为mi的模型放到位置(x, y, z)，缩放scaleRatio倍大小，绕轴axis旋转rotateAngle角度（默认不旋转）
+	void addModelPosition(const ModelIndex& mi, const float& x, const float& y, const float& z,
+		const float& scaleRatio, const float& rotateAngle = 0.0f, const glm::vec3& axis = glm::vec3(1.0f, 0.0f, 0.0f))
+	{
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(x, y, z));
+		model = glm::scale(model, glm::vec3(scaleRatio, scaleRatio, scaleRatio));
+		model = glm::rotate(model, glm::radians(rotateAngle), axis);
+		this->modelPos.push_back(ModelPosition(mi, model));
+	}
+	//简易的改模型位置的函数，如果要让动物动起来可以勉强用用
+	void changeModelPosition(const int& index, const float& x, const float& y, const float& z,
+		const float& scaleRatio, const float& rotateAngle = 0.0f, const glm::vec3& axis = glm::vec3(1.0f, 0.0f, 0.0f))
+	{
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(x, y, z));
+		model = glm::scale(model, glm::vec3(scaleRatio, scaleRatio, scaleRatio));
+		model = glm::rotate(model, glm::radians(rotateAngle), axis);
+		this->modelPos[index].modelMat = model;
 	}
 	void setDirLight(const DirLight& dirl)
 	{

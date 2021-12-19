@@ -1,0 +1,15 @@
+# MTL written from D:\Cloud\Projects\Personal\Turbosquid\Lowpoly_Trees\Publish_Sample\Lowpoly_tree_sample.obj
+newmtl Bark
+Kd 0.407595 0.38513 0.105181
+Ns 256
+d 1
+illum 1
+Ka  0.407595 0.2513 0.155181
+Ks 0 0 0
+newmtl Tree
+Kd 0.506861 0.90506 0.22769
+Ns 256
+d 1
+illum 1
+Ka 0.56861 0.80506 0.170769
+Ks 0 0 0

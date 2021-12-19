@@ -13,8 +13,9 @@
 #ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #include "lib/stb_image.h"
-
 #endif // !STB_IMAGE_IMPLEMENTATION
+
+
 
 
 #include "lib/camera.h"
@@ -27,6 +28,9 @@
 #include "generator/CloudGenerator.hpp"
 #include "objects/Light.hpp"
 #include "rendering/RenderEngine.hpp"
+#include "rendering/ParticleRenderer.hpp"
+#include "animation/bone.h"
+
 
 #include "rendering/ModelRender.hpp"
 #include "rendering/ShadowRender.hpp"
@@ -34,7 +38,6 @@
 int main()
 {
 	RenderEngine* engine = new RenderEngine();
-
 	TerrainGenerator* terrain_generator = new TerrainGenerator();
 	auto terrain = terrain_generator->createTerrain();
 
@@ -44,19 +47,30 @@ int main()
 	CloudGenerator* cloud_generator = new CloudGenerator();
 	auto cloud = cloud_generator->generate();
 
+	ParticleRenderer* particles = new ParticleRenderer();
+	particles->createEmitter(glm::vec3(1.0f, 1.0f, 1.0f),
+							 glm::vec3(2.0f),
+							 glm::vec3(0.0f, -0.16f, 0.0f),
+							 glm::vec2(0.0f, 0.0f),
+							 glm::vec2(600, 600),
+							 AMPLITUDE2 * 2.5 * 2,
+							 600 * 4);
+
 	Light* light = new Light(LIGHT_DIRECTION, LIGHT_COLOR, LIGHT_BIAS);
 
 	Skybox* skybox = new Skybox();
-	ModelRender* MR;
-	ShadowMapRender* SMR;
-	MR = new ModelRender();
-	SMR = new ShadowMapRender();
+
+	engine->set_height_map(terrain_generator->get_height_map());
+
+	ModelRender* MR = new ModelRender();
+	ShadowMapRender* SMR = new ShadowMapRender();
+
 
 	while (!engine->checkWindowClose())
 	{
 		engine->renderPrework(skybox);
 		
-		engine->renderObjs(terrain, water, skybox, cloud, light, MR, SMR);
+		engine->renderObjs(terrain, water, particles, skybox, cloud, light, MR, SMR);
 		engine->renderPostwork();
 	}
 

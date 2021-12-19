@@ -1,10 +1,27 @@
 #version 330 core
 layout (location = 0) in vec3 aPos;
-
+layout (location = 3) in vec4 boneIds;
+layout (location = 4) in vec4 boneWeights;
 uniform mat4 lightSpaceMatrix;
 uniform mat4 model;
 
+uniform bool useBoneTransform;
+
+uniform mat4 bone_transforms[50];
+
 void main()
 {
-    gl_Position = lightSpaceMatrix * model * vec4(aPos, 1.0);
+    if (useBoneTransform)
+    {
+        mat4 boneTransform  =  mat4(0.0);
+        boneTransform  +=    bone_transforms[int(boneIds.x)] * boneWeights.x;
+        boneTransform  +=    bone_transforms[int(boneIds.y)] * boneWeights.y;
+        boneTransform  +=    bone_transforms[int(boneIds.z)] * boneWeights.z;
+        boneTransform  +=    bone_transforms[int(boneIds.w)] * boneWeights.w;
+        gl_Position = lightSpaceMatrix * model * boneTransform * vec4(aPos, 1.0);
+    }
+    else
+    {
+        gl_Position = lightSpaceMatrix * model * vec4(aPos, 1.0);
+    }
 }

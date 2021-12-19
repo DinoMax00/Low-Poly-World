@@ -3,7 +3,7 @@
 const float PI = 3.1415926535897932384626433832795;
 
 const float waveLength = 4.0;
-const float waveAmplitude = 0.2;
+float waveAmplitude = 1.5;
 const float specularReflectivity = 0.4;
 const float shineDamper = 20.0;
 
@@ -16,6 +16,7 @@ out vec3 pass_normal;
 out vec3 pass_toCameraVector;
 out vec3 pass_specular;
 out vec3 pass_diffuse;
+out float mode;
 
 uniform float height;
 uniform vec3 cameraPos;
@@ -60,12 +61,21 @@ vec3 applyDistortion(vec3 vertex){
 }
 
 void main(void){
-	
+	mode = 3;
+	// ±ùÃæ
 	//get the grid position of all 3 vertices in the triangle
 	vec3 currentVertex = vec3(in_position.x, height, in_position.y);
 	vec3 vertex1 = currentVertex + vec3(in_indicators.x, 0.0, in_indicators.y);
 	vec3 vertex2 = currentVertex + vec3(in_indicators.z, 0.0, in_indicators.w);
 	
+	if (currentVertex.x <= 180 && currentVertex.z <= 180) {
+		mode = max(currentVertex.x / 180, currentVertex.z / 180);
+		waveAmplitude *= mode * mode * mode;
+	}
+	if (currentVertex.x >= 230 && currentVertex.z >=230) {
+		mode = -1;
+	}
+	currentVertex *= 3; vertex1 *= 3; vertex2 *= 3;
 	pass_clipSpaceGrid = projectionViewMatrix * vec4(currentVertex, 1.0);
 	
 	//apply distortion to all 3 vertices

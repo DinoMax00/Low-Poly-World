@@ -12,10 +12,11 @@
 #include "../config.h"
 #include <iostream>
 
+
 const char* SHADOW_SHADER_VS_PATH = "shaders/shadowMappingDepth.vs_";
 const char* SHADOW_SHADER_FS_PATH = "shaders/shadowMappingDepth.fs_";
-const GLuint SHADOW_WIDTH = 4096;
-const GLuint SHADOW_HEIGHT = 4096;
+const GLuint SHADOW_WIDTH = 16384;
+const GLuint SHADOW_HEIGHT = 16384;
 
 class ShadowMapRender
 {
@@ -25,12 +26,12 @@ protected:
 	glm::mat4 lightProjection;
 	glm::vec3 lightDir;//平行光方向
 
-	const float lightFrustumLeft = -200.0f;
-	const float lightFrustumRight = 200.0f;
-	const float lightFrustumDown = -200.0f;
-	const float lightFrustumUp = 200.0f;
+	const float lightFrustumLeft = -(float)MAP_SIZE * 3.0f;
+	const float lightFrustumRight = (float)MAP_SIZE * 3.0f;
+	const float lightFrustumDown = -(float)MAP_SIZE * 6.0f;
+	const float lightFrustumUp = 100.0f;
 	const float lightFrustumNear = 1.0f;
-	const float lightFrustumFar = 150.0f;
+	const float lightFrustumFar = 1500.0f;
 	const glm::vec3 lightTowards = glm::vec3(0.0f);
 	const glm::vec3 lightUp = glm::vec3(0.0, 1.0, 0.0);
 
@@ -71,7 +72,7 @@ public:
 	{
 		this->lightDir = ldir;
 	}
-	void genShadowMap(const ModelRender& MR, const TerrainRender& TR, CloudRenderer& CR)
+	void genShadowMap(const ModelRender& MR, const TerrainRender& TR, CloudRenderer& CR, const BoneAnimation& BA)
 	{
 		glDisable(GL_MULTISAMPLE); // 关抗锯齿
 		glDisable(GL_CULL_FACE);   // 关面剔除
@@ -102,23 +103,38 @@ public:
 		//glDrawElements(GL_TRIANGLES, TR.idc_len, GL_UNSIGNED_INT, 0);
 
 
+		//人的阴影
+		this->simpleDepthShader->setBool("useBoneTransform", 1);
+		glUniformMatrix4fv(glGetUniformLocation(this->simpleDepthShader->ID, "bone_transforms"), 
+			BA.boneCount, GL_FALSE, glm::value_ptr(BA.currentPose[0]));
+		this->simpleDepthShader->setMat4("model", BA.modelMatrix);
+		glBindVertexArray(BA.vao);
+		glDrawElements(GL_TRIANGLES, BA.indices.size(), GL_UNSIGNED_INT, 0);
+		this->simpleDepthShader->setBool("useBoneTransform", 0);
+
+
 		//云的阴影
-		for (auto i = 0; i < (int)CR.clouds->size(); i++) 
+		for (auto i = 0; i < (int)CR.clouds->size(); i++)
 		{
 			Cloud cloud = (*CR.clouds)[i];
 			glm::mat4 model = glm::mat4(1.0f);
-			CR.pos[i] += CR.moveSpeed / CR.scale[i] * glm::vec3(CR.pos[i].y / 20); // 根据云的大小 高度设置速度
-			if (CR.pos[i].x < 0) CR.pos[i].x += MAP_SIZE;
-			else if (CR.pos[i].x > MAP_SIZE) CR.pos[i].x -= MAP_SIZE;
+			CR.pos[i] += CR.moveSpeed / CR.scale[i] * glm::vec3(CR.pos[i].y * CR.pos[i].y / 400); // 根据云的大小 高度设置速度
+			if (CR.pos[i].x < 0) 
+				CR.pos[i].x += CR._MAP_SIZE;
+			else if (CR.pos[i].x > CR._MAP_SIZE) 
+				CR.pos[i].x -= CR._MAP_SIZE;
 
-			if (CR.pos[i].z < 0) CR.pos[i].z += MAP_SIZE;
-			else if (CR.pos[i].z > MAP_SIZE) CR.pos[i].z -= MAP_SIZE;
+			if (CR.pos[i].z < 0) 
+				CR.pos[i].z += CR._MAP_SIZE;
+			else if (CR.pos[i].z > CR._MAP_SIZE) 
+				CR.pos[i].z -= CR._MAP_SIZE;
 
 			model = glm::translate(model, CR.pos[i]);
-			model = glm::scale(model, glm::vec3(1.0f * CR.scale[i], 1.0f * CR.scale[i], 0.9f * CR.scale[i]));// make sure to initialize matrix to identity matrix first
 			model = glm::rotate(model, glm::radians(CR.rotate[i]), glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, CR.scale[i]);
 
 			this->simpleDepthShader->setMat4("model", model);
+
 			for (auto i = 0; i < Cloud::SPHERE_COUNT; i++) 
 			{
 				glBindVertexArray(cloud.cloudVAOs[i]);

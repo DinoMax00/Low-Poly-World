@@ -95,6 +95,15 @@
     <ClInclude Include="rendering\ShadowRender.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="animation\bone.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="generator\ParticleEmitter.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\ParticleRenderer.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\skybox.fs" />
@@ -111,5 +120,9 @@
     <None Include="shaders\cloudShader.vs" />
     <None Include="shaders\shadowMappingDepth.fs_" />
     <None Include="shaders\shadowMappingDepth.vs_" />
+    <None Include="shaders\bone.fs" />
+    <None Include="shaders\bone.vs" />
+    <None Include="shaders\particle.fs" />
+    <None Include="shaders\particle.vs" />
   </ItemGroup>
 </Project>

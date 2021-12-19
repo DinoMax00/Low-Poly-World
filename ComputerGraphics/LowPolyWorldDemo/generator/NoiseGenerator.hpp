@@ -22,11 +22,8 @@ public:
 	 * @brief 无参构造 参数先直接从config里取了
 	 *
 	 */
-	NoiseGenerator() {
-		seed = time(0);
-		roughness = ROUGHNESS;
-		octaves = OCTAVES;
-		amplitude = AMPLITUDE;
+	NoiseGenerator(float _roughness, int _octaves, float _amplitude): roughness(_roughness), octaves(_octaves), amplitude(_amplitude) {
+		seed = (int)time(0);
 	}
 
 	/**
@@ -37,10 +34,10 @@ public:
 	 */
 	float getPerlinNoise(int x, int y) {
 		float tot = 0;
-		float d = std::pow(2, octaves - 1);
+		float d = (float)std::pow(2, octaves - 1);
 		for (int i = 0; i < octaves; ++i) {
-			float freq = std::pow(2, i) / d;
-			float amp = std::pow(roughness, i) * amplitude;
+			float freq = (float)std::pow(2, i) / d;
+			float amp = (float)std::pow(roughness, i) * amplitude;
 			tot += getInterpolateNoise(x * freq, y * freq) * amp;
 		}
 		//std::cout << tot << std::endl;
@@ -49,6 +46,7 @@ public:
 
 private:
 	float getNoise(int x, int y) {
+
 		srand(x * 1145 * std::pow(2, x % 13) + y * 14114 * (int)std::pow(2, y % 7) + seed);
 		auto rd = rand();
  		return (1.0f * rd / RAND_MAX) * 2.0f - 1.0f;

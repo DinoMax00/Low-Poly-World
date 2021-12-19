@@ -21,8 +21,6 @@
 class Skybox {
 public:
 	// settings
-	const unsigned int SCR_WIDTH = 800;
-	const unsigned int SCR_HEIGHT = 600;
 	unsigned int cubemapTexture;
 	unsigned int skyboxVAO, skyboxVBO;
 	Shader skyboxShader = Shader("shaders/skybox.vs", "shaders/skybox.fs");
@@ -130,13 +128,13 @@ public:
 		this->skyboxShader.setInt("skybox", 0);
 	}
 
-	void draw(Camera& camera) {
+	void draw(Camera* camera) {
 		// draw skybox as last
 		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 		this->skyboxShader.use();
 
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		glm::mat4 view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
+		glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)WINDOW_W / (float)WINDOW_H, NEAR_PLANE, FAR_PLANE);
+		glm::mat4 view = glm::mat4(glm::mat3(camera->GetViewMatrix())); // remove translation from the view matrix
 		skyboxShader.setMat4("view", view);
 		skyboxShader.setMat4("projection", projection);
 

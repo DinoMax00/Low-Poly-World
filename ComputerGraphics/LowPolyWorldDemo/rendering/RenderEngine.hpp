@@ -13,6 +13,8 @@
 #include "CloudRenderer.hpp"
 #include "TerrainRender.hpp"
 #include "WaterRender.hpp"
+#include "ParticleRenderer.hpp"
+#include "../animation/bone.h"
 
 #include "ModelRender.hpp"
 #include "ShadowRender.hpp"
@@ -30,19 +32,24 @@ void processInput(GLFWwindow* window);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-
+static BoneAnimation* little_people;
 /**
  * 处理gl初始化以及所有渲染事件.
  */
 class RenderEngine {
 private:
 	GLFWwindow* window;
-	Fbo* reflection_fbo; // 反射
-	Fbo* refraction_fbo; // 折射
+	Fbo* reflection_fbo = 0; // 反射
+	Fbo* refraction_fbo = 0; // 折射
 
-	Shader* screenShader;
-	unsigned int quadVAO, quadVBO;
+	
+	float** height_map;
+
 public:
+
+	void set_height_map(float** h) {
+		height_map = h;
+	}
 
 	RenderEngine() {
 		glfwInit();
@@ -73,11 +80,13 @@ public:
 		
 		refraction_fbo = new Fbo(WINDOW_W, WINDOW_H, true);
 		reflection_fbo = new Fbo(WINDOW_W, WINDOW_H, false);
+
+		little_people = new BoneAnimation("resources/model.dae", "resources/diffuse.png", "shaders/bone.vs", "shaders/bone.fs");
+		Shader bone_shader("shaders/bone.vs", "shaders/bone.fs");
+		little_people->initial(bone_shader, *camera, window);
 	}
 
 	~RenderEngine() {
-		glDeleteVertexArrays(1, &quadVAO);
-		glDeleteBuffers(1, &quadVBO);
 		glfwTerminate();
 	}
 
@@ -91,7 +100,7 @@ public:
 	 * \param skybox
 	 */
 	void renderPrework(Skybox* skybox) {
-		float currentFrame = glfwGetTime();
+		float currentFrame = (float)glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
@@ -111,8 +120,8 @@ public:
 	 * \param water
 	 * \param light
 	 */
-	void renderObjs(TerrainRender* terrain, WaterRender* water, Skybox* skybox, CloudRenderer* cloud,
-		Light* light, ModelRender* MR, ShadowMapRender* SMR)
+	void renderObjs(TerrainRender* terrain, WaterRender* water, ParticleRenderer* particles, Skybox* skybox,
+		CloudRenderer* cloud, Light* light, ModelRender* MR, ShadowMapRender* SMR)
 	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -123,13 +132,31 @@ public:
 		glDisable(GL_CLIP_DISTANCE0);
 
 		prepare();
+		camera->MovementSpeed = 4.0f;
+		SMR->genShadowMap(*MR, *terrain, *cloud, *little_people);
 		// 先画天空盒
-		SMR->genShadowMap(*MR, *terrain, *cloud);
-		skybox->draw(*camera);
+		skybox->draw(camera);
+
 		terrain->render(camera, light, glm::vec4(0, 0, 0, 0), SMR->depthMap, SMR->lightSpaceMatrix);
-		//water->render(camera, light, reflection_fbo->getColorBuffer(),
-		//	refraction_fbo->getColorBuffer(), refraction_fbo->getDepthBuffer());
+
+		water->render(camera, light, 
+			reflection_fbo->getColorBuffer(), 
+			refraction_fbo->getColorBuffer(),
+			refraction_fbo->getDepthBuffer()
+		);
+		
+		camera->ModelPosition.x = std::min(camera->ModelPosition.x, (float)MAP_SIZE * 3 - 5);
+		camera->ModelPosition.x = std::max(camera->ModelPosition.x, (float)0);
+		camera->ModelPosition.z = std::min(camera->ModelPosition.z, (float)MAP_SIZE * 3 - 5);
+		camera->ModelPosition.z = std::max(camera->ModelPosition.z, (float)0);
+
+		Shader bone_shader("shaders/bone.vs", "shaders/bone.fs");
+
+		little_people->show(bone_shader, *camera, light->get_direction(), window, get_height(camera->ModelPosition.x, camera->ModelPosition.z));
+
+		particles->render(camera, light->get_direction(), light->get_color());
 		cloud->render(camera, light->get_direction(), light->get_color());
+
 		MR->draw(*camera, SMR->depthMap, SMR->lightSpaceMatrix);
 	}
 
@@ -159,13 +186,46 @@ private:
 		glEnable(GL_MULTISAMPLE); // 抗锯齿
 		glEnable(GL_CULL_FACE);   // 面剔除
 	}
+
+	float get_height(float z, float x) {
+		int r1 = (int)(x / 3), c1 = (int)(z / 3);
+		int r2 = r1, r3 = r1 + 1, r4 = r1 + 1;
+		int c2 = c1 + 1, c3 = c1, c4 = c1 + 1;
+		glm::vec3 p1, p2, p3;
+
+		if (r1 % 2 != c1 % 2) {
+			p1 = glm::vec3(r1 * 3, c1 * 3, 3 * height_map[r1][c1]);
+			p2 = glm::vec3(r4 * 3, c4 * 3, 3 * height_map[r4][c4]);
+			if (x - r1 * 3 < z - c1 * 3) 
+				p3 = glm::vec3(r2 * 3, c2 * 3, 3 * height_map[r2][c2]);
+			else 
+				p3 = glm::vec3(r3 * 3, c3 * 3, 3 * height_map[r3][c3]);
+		}
+		else {
+			p1 = glm::vec3(r2 * 3, c2 * 3, 3 * height_map[r2][c2]);
+			p2 = glm::vec3(r3 * 3, c3 * 3, 3 * height_map[r3][c3]);
+			if (x - r1 * 3 < c2 * 3 - z)
+				p3 = glm::vec3(r1 * 3, c1 * 3, 3 * height_map[r1][c1]);
+			else
+				p3 = glm::vec3(r4 * 3, c4 * 3, 3 * height_map[r4][c4]);
+		}
+
+		p1 -= p3;
+		p2 -= p3;
+		auto p = glm::vec3(p1.y * p2.z - p1.z * p2.y, -p1.x * p2.z + p1.z * p2.x, p1.x * p2.y - p1.y * p2.x);
+		auto d = p.x * p3.x + p.y * p3.y + p.z * p3.z;
+		float ans = d - p.x * x - p.y * z;
+		ans /= p.z;
+		return ans;
+	}
 };
 
 void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE)
+		camera->free_view = false;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera->ProcessKeyboard(FORWARD, 20 * deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -174,6 +234,9 @@ void processInput(GLFWwindow* window)
 		camera->ProcessKeyboard(LEFT, 20 * deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera->ProcessKeyboard(RIGHT, 20 * deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		camera->free_view = true;
+	
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -185,21 +248,21 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	if (firstMouse)
 	{
-		lastX = xpos;
-		lastY = ypos;
+		lastX = (float)xpos;
+		lastY = (float)ypos;
 		firstMouse = false;
 	}
 
-	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos;
+	float xoffset = (float)xpos - lastX;
+	float yoffset = lastY - (float)ypos;
 
-	lastX = xpos;
-	lastY = ypos;
+	lastX = (float)xpos;
+	lastY = (float)ypos;
 
 	camera->ProcessMouseMovement(xoffset, yoffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	camera->ProcessMouseScroll(yoffset);
+	camera->ProcessMouseScroll((float)yoffset);
 }

@@ -23,7 +23,9 @@ private:
 	int* indices;
 
 public:
+
 	friend class ShadowMapRender;
+
 	TerrainRender(unsigned int _buffer_len, glm::vec3* _buffer, unsigned int _idc_len, int* _indices)
 	: buffer_len(_buffer_len), buffer(_buffer), idc_len(_idc_len), indices(_indices)
 	{
@@ -42,7 +44,7 @@ public:
 	 * 渲染地形.
 	 * 之后考虑把light封装成一个类
 	 */
-	void render(Camera* camera, Light* light, glm::vec4 plane, const GLuint& depthMap = 0, 
+	void render(Camera* camera, Light* light, glm::vec4 plane, const GLuint& depthMap = 0,
 		const glm::mat4& lightSpaceMatrix = glm::mat4(1.0f))
 	{
 		terrain_shader->use();
@@ -55,7 +57,6 @@ public:
 		glm::mat4 view = camera->GetViewMatrix();
 		glm::mat4 model = glm::mat4(1.0f);
 		terrain_shader->setMat4("projectionViewMatrix", projection * view * model);
-
 
 
 		terrain_shader->setMat4("lightSpaceMatrix", glm::mat4(1.0f));
@@ -71,12 +72,9 @@ public:
 			terrain_shader->setBool("useShadow", 1);
 		}
 
-
-
 		glProvokingVertex(GL_FIRST_VERTEX_CONVENTION);
 		glBindVertexArray(this->VAO);
 		glDrawElements(GL_TRIANGLES, idc_len, GL_UNSIGNED_INT, 0);
-
 	}
 
 private:
