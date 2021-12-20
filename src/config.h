@@ -1,8 +1,8 @@
 #pragma once
 
 /// 窗口大小
-constexpr unsigned int WINDOW_H = 720;
-constexpr unsigned int WINDOW_W = 1280;
+constexpr unsigned int WINDOW_H = 750;
+constexpr unsigned int WINDOW_W = 960;
 
 /// 相机
 constexpr float NEAR_PLANE = 0.4f;

@@ -209,6 +209,35 @@ private:
 		ans /= p.z;
 		return ans;
 	}
+
+	glm::vec3 get_normal(float z, float x) {
+		int r1 = x / 3, c1 = z / 3;
+		int r2 = r1, r3 = r1 + 1, r4 = r1 + 1;
+		int c2 = c1 + 1, c3 = c1, c4 = c1 + 1;
+		glm::vec3 p1, p2, p3;
+
+		if (r1 % 2 != c1 % 2) {
+			p1 = glm::vec3(r1 * 3, c1 * 3, 3 * height_map[r1][c1]);
+			p2 = glm::vec3(r4 * 3, c4 * 3, 3 * height_map[r4][c4]);
+			if (x - r1 * 3 < z - c1 * 3)
+				p3 = glm::vec3(r2 * 3, c2 * 3, 3 * height_map[r2][c2]);
+			else
+				p3 = glm::vec3(r3 * 3, c3 * 3, 3 * height_map[r3][c3]);
+		}
+		else {
+			p1 = glm::vec3(r2 * 3, c2 * 3, 3 * height_map[r2][c2]);
+			p2 = glm::vec3(r3 * 3, c3 * 3, 3 * height_map[r3][c3]);
+			if (x - r1 * 3 < c2 * 3 - z)
+				p3 = glm::vec3(r1 * 3, c1 * 3, 3 * height_map[r1][c1]);
+			else
+				p3 = glm::vec3(r4 * 3, c4 * 3, 3 * height_map[r4][c4]);
+		}
+
+		p1 -= p3;
+		p2 -= p3;
+		auto p = glm::vec3(p1.y * p2.z - p1.z * p2.y, -p1.x * p2.z + p1.z * p2.x, p1.x * p2.y - p1.y * p2.x);
+		return p;
+	}
 };
 
 void processInput(GLFWwindow* window)

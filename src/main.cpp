@@ -42,9 +42,9 @@ int main()
 							 glm::vec3(2.0f),
 							 glm::vec3(0.0f, -0.16f, 0.0f),
 							 glm::vec2(0.0f, 0.0f),
-							 glm::vec2(600, 600),
+							 glm::vec2(500, 500),
 							 AMPLITUDE2 * 2.5 * 2,
-							 600 * 4);
+							 600 * 5);
 
 	Light* light = new Light(LIGHT_DIRECTION, LIGHT_COLOR, LIGHT_BIAS);
 

@@ -33,24 +33,15 @@ public:
 		pos.resize(clouds->size());
 		rotate.resize(clouds->size());
 		scale.resize(clouds->size());
+
+		std::vector<int> perm(12); // 需确保云的大小不超过 15
+		for (int i = 0; i < 12; i++) perm[i] = i;
+		std::shuffle(perm.begin(), perm.end(), rng);
 		for (int i = 0; i < pos.size(); i++) { // 设置各个云坐标
+			int row = perm[i] / 4, column = perm[i] % 4;
 			pos[i].y = CLOUD_BASE_HEIGHT + rng() % ((int)CLOUD_BASE_HEIGHT / 5);
-			if (i % 4 == 0) {
-				pos[i].x = 1.0 * _MAP_SIZE / 4 + rng() % (_MAP_SIZE / 4 - 5);
-				pos[i].z = 1.0 * _MAP_SIZE / 4 + rng() % (_MAP_SIZE / 4 - 5);
-			}
-			else if (i % 4 == 1) {
-				pos[i].x = 1.0 * _MAP_SIZE / 4 + rng() % (_MAP_SIZE / 4 - 5);
-				pos[i].z = 3.0 * _MAP_SIZE / 4 + rng() % (_MAP_SIZE / 4 - 5);
-			}
-			else if (i % 4 == 2) {
-				pos[i].x = 3.0 * _MAP_SIZE / 4 + rng() % (_MAP_SIZE / 4 - 5);
-				pos[i].z = 1.0 * _MAP_SIZE / 4 + rng() % (_MAP_SIZE / 4 - 5);
-			}
-			else{
-				pos[i].x = 3.0 * _MAP_SIZE / 4 + rng() % (_MAP_SIZE / 4 - 5);
-				pos[i].z = 3.0 * _MAP_SIZE / 4 + rng() % (_MAP_SIZE / 4 - 5);
-			}
+			pos[i].x = 1.0 * _MAP_SIZE / 8 + 1.0 * column * _MAP_SIZE / 4 + ((int)rng() - (int)std::mt19937::max()) % (_MAP_SIZE / 12);
+			pos[i].z = 1.0 * _MAP_SIZE / 6 + 1.0 * row * _MAP_SIZE / 3 + ((int)rng() - (int)std::mt19937::max()) % (_MAP_SIZE / 12);
 		}
 		for (auto& i : rotate)i = -60.0 + 120.0 * rng() / std::mt19937::max(); // 设置旋转角度
 		for (auto& i : scale) {
@@ -60,8 +51,8 @@ public:
 			i.z = tmp * (0.8 + 0.15 * rng() / std::mt19937::max());
 		}
 		moveSpeed = glm::vec3(-MOVE_SPEED_BASE + MOVE_SPEED_BASE * 2 * rng() / std::mt19937::max(),
-							0.0f, -MOVE_SPEED_BASE + MOVE_SPEED_BASE * 2 * rng() / std::mt19937::max()); // 设置云的运动方向
-		// 防止速度过小
+			0.0f, -MOVE_SPEED_BASE + MOVE_SPEED_BASE * 2 * rng() / std::mt19937::max()); // 设置云的运动方向
+// 防止速度过小
 		if (moveSpeed.x < 0) moveSpeed.x = std::min(moveSpeed.x, -1.0f * MOVE_SPEED_BASE / 2);
 		if (moveSpeed.x > 0) moveSpeed.x = std::max(moveSpeed.x, 1.0f * MOVE_SPEED_BASE / 2);
 		if (moveSpeed.z < 0) moveSpeed.z = std::min(moveSpeed.z, -1.0f * MOVE_SPEED_BASE / 2);
@@ -85,7 +76,7 @@ public:
 		cloudShader->setVec3("light.direction", lightDir.x, lightDir.y, lightDir.z);
 
 		glm::vec3 diffuseColor = lightColor * glm::vec3(0.6f); // decrease the influen 
-		glm::vec3 ambientColor = lightColor *glm::vec3(0.6f); // low influence
+		glm::vec3 ambientColor = lightColor * glm::vec3(0.6f); // low influence
 		cloudShader->setVec3("light.ambient", ambientColor);
 		cloudShader->setVec3("light.diffuse", diffuseColor);
 
@@ -106,8 +97,8 @@ public:
 			model = glm::translate(model, pos[i]);
 			model = glm::rotate(model, glm::radians(rotate[i]), glm::vec3(0.0f, 1.0f, 0.0f));
 			model = glm::scale(model, scale[i]);
-			
-				
+
+
 			cloudShader->setMat4("model", model);
 			for (int i = 0; i < Cloud::SPHERE_COUNT; i++) {
 				glBindVertexArray(cloud.cloudVAOs[i]);

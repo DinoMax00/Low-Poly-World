@@ -57,10 +57,7 @@ vec2 clipSpaceToTexCoords(vec4 clipSpace){
 }
 
 void main(void){
-	if (mode < 2) {
-		waterColour = waterColour / 255 * mode +  vec3(45, 152, 218) / 255 * (1 - mode);
-	}
-	else waterColour /= 255;
+	waterColour /= 255;
 	vec2 texCoordsReal = clipSpaceToTexCoords(pass_clipSpaceReal);
 	vec2 texCoordsGrid = clipSpaceToTexCoords(pass_clipSpaceGrid);
 	
